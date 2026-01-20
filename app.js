@@ -1,14 +1,12 @@
 const express = require("express");
-const dotenv = require("dotenv");
 const morgan = require("morgan");
 
-dotenv.config();
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
 app.use(express.json());
 app.use(morgan("dev"));
-
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
@@ -20,11 +18,6 @@ app.get("/error-test", (req, res, next) => {
   next(err);
 });
 
-const errorHandler = require("./middleware/errorHandler");
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+module.exports = app;
