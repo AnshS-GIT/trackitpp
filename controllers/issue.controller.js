@@ -1,4 +1,4 @@
-const { createIssue,listIssues } = require("../services/issue.service");
+const { createIssue, listIssues, updateIssueStatus,} = require("../services/issue.service");
 
 const createNewIssue = async (req, res, next) => {
   try {
@@ -38,5 +38,26 @@ const getIssues = async (req, res, next) => {
   }
 };
 
+const updateIssueStatusController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-module.exports = {createNewIssue,getIssues,};
+    const updatedIssue = await updateIssueStatus({
+      issueId: id,
+      newStatus: status,
+      user: req.user,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Issue status updated successfully",
+      data: updatedIssue,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports = {createNewIssue,getIssues,updateIssueStatusController};
