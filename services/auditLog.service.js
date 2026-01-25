@@ -18,6 +18,17 @@ const logAuditEvent = async ({
   });
 };
 
-module.exports = {
-  logAuditEvent,
+const getAuditLogs = async ({ entityType, entityId }) => {
+  const query = {};
+
+  if (entityType) query.entityType = entityType;
+  if (entityId) query.entityId = entityId;
+
+  const logs = await AuditLog.find(query)
+    .populate("performedBy", "name email role")
+    .sort({ createdAt: -1 });
+
+  return logs;
 };
+
+module.exports = {logAuditEvent,getAuditLogs,};
