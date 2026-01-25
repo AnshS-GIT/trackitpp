@@ -1,4 +1,4 @@
-const { createIssue } = require("../services/issue.service");
+const { createIssue,listIssues } = require("../services/issue.service");
 
 const createNewIssue = async (req, res, next) => {
   try {
@@ -22,6 +22,21 @@ const createNewIssue = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  createNewIssue,
+const getIssues = async (req, res, next) => {
+  try {
+    const issues = await listIssues({
+      userId: req.user.id,
+      role: req.user.role,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: issues,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
+
+
+module.exports = {createNewIssue,getIssues,};

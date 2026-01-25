@@ -17,7 +17,21 @@ const createIssue = async ({
 
   return issue;
 };
+const listIssues = async ({ userId, role }) => {
+  let query = {};
 
-module.exports = {
-  createIssue,
+  if (role === "ENGINEER") {
+    query = {
+      $or: [{ createdBy: userId }, { assignedTo: userId }],
+    };
+  }
+
+  const issues = await Issue.find(query)
+    .populate("createdBy", "name email role")
+    .populate("assignedTo", "name email role")
+    .sort({ createdAt: -1 });
+
+  return issues;
 };
+
+module.exports = {createIssue,listIssues,};
