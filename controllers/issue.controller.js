@@ -1,4 +1,4 @@
-const { createIssue, listIssues, updateIssueStatus,} = require("../services/issue.service");
+const { createIssue, listIssues, updateIssueStatus, assignIssue, } = require("../services/issue.service");
 
 const createNewIssue = async (req, res, next) => {
   try {
@@ -59,5 +59,26 @@ const updateIssueStatusController = async (req, res, next) => {
   }
 };
 
+const assignIssueController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { assigneeId } = req.body;
 
-module.exports = {createNewIssue,getIssues,updateIssueStatusController};
+    const result = await assignIssue({
+      issueId: id,
+      assigneeId,
+      user: req.user,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Issue assigned successfully",
+      data: result.issue,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports = {createNewIssue,getIssues,updateIssueStatusController,assignIssueController};
