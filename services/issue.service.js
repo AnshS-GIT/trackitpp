@@ -1,4 +1,5 @@
 const Issue = require("../models/issue.model");
+const { logAuditEvent } = require("./auditLog.service");
 
 const createIssue = async ({
   title,
@@ -67,11 +68,23 @@ const updateIssueStatus = async ({ issueId, newStatus, user }) => {
     throw error;
   }
 
+  const oldStatus = issue.status;
+
   issue.status = newStatus;
   await issue.save();
 
+  await logAuditEvent({
+    action: "ISSUE_STATUS_UPDATED",
+    entityType: "ISSUE",
+    entityId: issue._id,
+    performedBy: user.id,
+    oldValue: { status: oldStatus },
+    newValue: { status: newStatus },
+  });
+
   return issue;
 };
+
 
 
 module.exports = {createIssue,listIssues,updateIssueStatus,};
