@@ -2,6 +2,7 @@ const express = require("express");
 const {
   createNewIssue,
   getIssues,
+  updateIssueStatusController,
 } = require("../controllers/issue.controller");
 
 const protect = require("../middleware/auth.middleware");
@@ -21,6 +22,13 @@ router.get(
   protect,
   authorizeRoles("ENGINEER", "MANAGER", "AUDITOR", "ADMIN"),
   getIssues
+);
+
+router.patch(
+  "/issues/:id/status",
+  protect,
+  authorizeRoles("ENGINEER", "MANAGER", "ADMIN"),
+  updateIssueStatusController
 );
 
 module.exports = router;
