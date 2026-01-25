@@ -85,6 +85,32 @@ const updateIssueStatus = async ({ issueId, newStatus, user }) => {
   return issue;
 };
 
+const assignIssue = async ({ issueId, assigneeId, user }) => {
+  if (!["MANAGER", "ADMIN"].includes(user.role)) {
+    const error = new Error("Only managers or admins can assign issues");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const issue = await Issue.findById(issueId);
+
+  if (!issue) {
+    const error = new Error("Issue not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const oldAssignee = issue.assignedTo;
+
+  issue.assignedTo = assigneeId;
+  await issue.save();
+
+  return {
+    issue,
+    oldAssignee,
+    newAssignee: assigneeId,
+  };
+};
 
 
-module.exports = {createIssue,listIssues,updateIssueStatus,};
+module.exports = {createIssue,listIssues,updateIssueStatus,assignIssue,};
