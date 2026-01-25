@@ -105,11 +105,16 @@ const assignIssue = async ({ issueId, assigneeId, user }) => {
   issue.assignedTo = assigneeId;
   await issue.save();
 
-  return {
-    issue,
-    oldAssignee,
-    newAssignee: assigneeId,
-  };
+  await logAuditEvent({
+    action: "ISSUE_ASSIGNED",
+    entityType: "ISSUE",
+    entityId: issue._id,
+    performedBy: user.id,
+    oldValue: { assignedTo: oldAssignee },
+    newValue: { assignedTo: assigneeId },
+  });
+
+  return issue;
 };
 
 
