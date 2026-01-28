@@ -4,3 +4,8 @@ export const fetchIssues = async () => {
   const res = await api.get("/issues");
   return res.data.data;
 };
+
+export const updateIssueStatus = async (issueId, status) => {
+  const res = await api.patch(`/issues/${issueId}/status`, { status });
+  return res.data.data;
+};
