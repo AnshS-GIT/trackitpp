@@ -1,3 +1,9 @@
+import AdminLayout from "../layouts/AdminLayout";
+
 export default function Dashboard() {
-  return <h1>Dashboard</h1>;
+  return (
+    <AdminLayout>
+      <h1>Dashboard</h1>
+    </AdminLayout>
+  );
 }
