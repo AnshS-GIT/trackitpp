@@ -1,47 +1,61 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "../pages/Login";
-import Dashboard from "../pages/Dashboard";
-import Issues from "../pages/Issues";
-import AuditLogs from "../pages/AuditLogs";
-import { isAuthenticated } from "../utils/auth";
+import { useState } from "react";
+import api from "../api/axios";
 
-const ProtectedRoute = ({ children }) => {
-  return isAuthenticated() ? children : <Navigate to="/login" />;
-};
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-export default function AppRoutes() {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const res = await api.post("/users/login", {
+        email,
+        password,
+      });
+
+      const { token } = res.data;
+      localStorage.setItem("token", token);
+
+      alert("Login successful");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Login failed"
+      );
+    }
+  };
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
+    <div style={{ padding: "40px" }}>
+      <h2>Login</h2>
 
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <Route
-          path="/issues"
-          element={
-            <ProtectedRoute>
-              <Issues />
-            </ProtectedRoute>
-          }
-        />
+      <form onSubmit={handleSubmit}>
+        <div>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-        <Route
-          path="/audit-logs"
-          element={
-            <ProtectedRoute>
-              <AuditLogs />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+        <div>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 }

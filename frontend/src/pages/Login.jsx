@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,16 +22,14 @@ export default function Login() {
       const { token } = res.data;
       localStorage.setItem("token", token);
 
-      alert("Login successful");
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Login failed"
-      );
+      navigate("/");
+    } catch {
+      setError("Invalid email or password");
     }
   };
 
   return (
-    <div style={{ padding: "40px" }}>
+    <div style={{ padding: "40px", maxWidth: "400px", margin: "0 auto" }}>
       <h2>Login</h2>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -56,6 +57,10 @@ export default function Login() {
 
         <button type="submit">Login</button>
       </form>
+
+      <p style={{ marginTop: "15px" }}>
+        New user? <a href="/register">Register here</a>
+      </p>
     </div>
   );
 }
