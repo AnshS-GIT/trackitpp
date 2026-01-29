@@ -33,71 +33,100 @@ export default function AuditLogs() {
 
   return (
     <AdminLayout>
-      <h1>Audit Logs</h1>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold text-slate-900">System Audit Logs</h1>
 
-      {/* Filters */}
-      <div style={{ marginBottom: "15px", display: "flex", gap: "10px" }}>
-        <select
-          value={entityFilter}
-          onChange={(e) => setEntityFilter(e.target.value)}
-        >
-          <option value="ALL">All Entities</option>
-          <option value="ISSUE">ISSUE</option>
-          <option value="USER">USER</option>
-        </select>
+          <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-4">
+            <select
+              value={entityFilter}
+              onChange={(e) => setEntityFilter(e.target.value)}
+              className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm shadow-sm border"
+            >
+              <option value="ALL">All Entities</option>
+              <option value="ISSUE">Issue</option>
+              <option value="USER">User</option>
+            </select>
 
-        <select
-          value={actionFilter}
-          onChange={(e) => setActionFilter(e.target.value)}
-        >
-          <option value="ALL">All Actions</option>
-          <option value="ISSUE_CREATED">ISSUE_CREATED</option>
-          <option value="ISSUE_ASSIGNED">ISSUE_ASSIGNED</option>
-          <option value="ISSUE_STATUS_UPDATED">ISSUE_STATUS_UPDATED</option>
-        </select>
+            <select
+              value={actionFilter}
+              onChange={(e) => setActionFilter(e.target.value)}
+              className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm shadow-sm border"
+            >
+              <option value="ALL">All Actions</option>
+              <option value="ISSUE_CREATED">Created</option>
+              <option value="ISSUE_ASSIGNED">Assigned</option>
+              <option value="ISSUE_STATUS_UPDATED">Status Updated</option>
+            </select>
+          </div>
+        </div>
+
+        {loading && <p className="text-gray-500">Loading audit logs...</p>}
+        {error && <p className="text-red-600 font-medium">{error}</p>}
+
+        {!loading && !error && filteredLogs.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-lg shadow">
+            <p className="text-gray-500">No audit logs found for selected filters.</p>
+          </div>
+        )}
+
+        {!loading && !error && filteredLogs.length > 0 && (
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entity</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performed By</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Old Value</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Value</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredLogs.map((log) => (
+                    <tr key={log._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {log.action.replace(/_/g, " ")}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">
+                          {log.entityType}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {log.performedBy?.name || "System"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 font-mono text-xs">
+                        {log.oldValue ? (
+                          <div className="max-w-[200px] max-h-[100px] overflow-auto bg-slate-50 p-2 rounded border border-gray-200">
+                            <pre>{JSON.stringify(log.oldValue, null, 2)}</pre>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 font-mono text-xs">
+                        {log.newValue ? (
+                          <div className="max-w-[200px] max-h-[100px] overflow-auto bg-slate-50 p-2 rounded border border-gray-200">
+                            <pre>{JSON.stringify(log.newValue, null, 2)}</pre>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
-
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {!loading && !error && filteredLogs.length === 0 && (
-        <p>No audit logs found for selected filters.</p>
-      )}
-
-      {!loading && !error && filteredLogs.length > 0 && (
-        <table border="1" cellPadding="8">
-          <thead>
-            <tr>
-              <th>Action</th>
-              <th>Entity</th>
-              <th>Performed By</th>
-              <th>Old Value</th>
-              <th>New Value</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLogs.map((log) => (
-              <tr key={log._id}>
-                <td>{log.action}</td>
-                <td>{log.entityType}</td>
-                <td>{log.performedBy?.name || "-"}</td>
-                <td>
-                  <pre style={{ maxWidth: "200px", overflow: "auto" }}>
-                    {JSON.stringify(log.oldValue, null, 2)}
-                  </pre>
-                </td>
-                <td>
-                  <pre style={{ maxWidth: "200px", overflow: "auto" }}>
-                    {JSON.stringify(log.newValue, null, 2)}
-                  </pre>
-                </td>
-                <td>{new Date(log.createdAt).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
     </AdminLayout>
   );
 }
