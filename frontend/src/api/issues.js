@@ -16,3 +16,8 @@ export const assignIssue = async (issueId, assigneeId) => {
   });
   return res.data.data;
 };
+
+export const requestAssignment = async (issueId) => {
+  const res = await api.post(`/issues/${issueId}/request-assignment`);
+  return res.data;
+};

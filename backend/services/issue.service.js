@@ -116,6 +116,37 @@ const assignIssue = async ({ issueId, assigneeId, user }) => {
 
   return issue;
 };
+const requestAssignment = async ({ issueId, user }) => {
+  if (user.role !== "ENGINEER") {
+    const error = new Error("Only engineers can request assignment");
+    error.statusCode = 403;
+    throw error;
+  }
 
+  const issue = await Issue.findById(issueId);
 
-module.exports = {createIssue,listIssues,updateIssueStatus,assignIssue,};
+  if (!issue) {
+    const error = new Error("Issue not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (issue.assignedTo) {
+    const error = new Error("Issue is already assigned");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  await logAuditEvent({
+    action: "ISSUE_ASSIGNMENT_REQUESTED",
+    entityType: "ISSUE",
+    entityId: issue._id,
+    performedBy: user.id,
+    oldValue: { assignedTo: null },
+    newValue: { requestedBy: user.id },
+  });
+
+  return { success: true, message: "Assignment request logged successfully" };
+};
+
+module.exports = {createIssue,listIssues,updateIssueStatus,assignIssue,requestAssignment,};

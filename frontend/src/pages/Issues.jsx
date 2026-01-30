@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
-import { fetchIssues, updateIssueStatus, assignIssue } from "../api/issues";
+import { fetchIssues, updateIssueStatus, assignIssue, requestAssignment } from "../api/issues";
 import { fetchUsers } from "../api/users";
 import { getUser } from "../utils/auth";
 
@@ -214,9 +214,26 @@ export default function Issues() {
                             ))}
                           </select>
                         ) : (
-                          <span className="text-slate-500">
-                            {issue.assignedTo?.name || "Unassigned"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-500">
+                              {issue.assignedTo?.name || "Unassigned"}
+                            </span>
+                            {currentUser?.role === "ENGINEER" && !issue.assignedTo && (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await requestAssignment(issue._id);
+                                    alert("Assignment requested successfully");
+                                  } catch (err) {
+                                    alert(err.response?.data?.message || "Failed to request assignment");
+                                  }
+                                }}
+                                className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition-colors"
+                              >
+                                Request
+                              </button>
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>

@@ -1,5 +1,5 @@
 const express = require("express");
-const {createNewIssue,getIssues,updateIssueStatusController,assignIssueController,} = require("../controllers/issue.controller");
+const {createNewIssue,getIssues,updateIssueStatusController,assignIssueController,requestAssignmentController,} = require("../controllers/issue.controller");
 
 const protect = require("../middleware/auth.middleware");
 const authorizeRoles = require("../middleware/rbac.middleware");
@@ -32,6 +32,13 @@ router.patch(
   protect,
   authorizeRoles("MANAGER", "ADMIN"),
   assignIssueController
+);
+
+router.post(
+  "/issues/:id/request-assignment",
+  protect,
+  authorizeRoles("ENGINEER"),
+  requestAssignmentController
 );
 
 module.exports = router;
