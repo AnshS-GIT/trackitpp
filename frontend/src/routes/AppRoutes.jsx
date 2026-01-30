@@ -5,6 +5,8 @@ import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import Issues from "../pages/Issues";
 import MyIssues from "../pages/MyIssues";
+import PendingIssues from "../pages/PendingIssues";
+import ClosedIssues from "../pages/ClosedIssues";
 import AuditLogs from "../pages/AuditLogs";
 
 const ProtectedRoute = ({ children }) => {
@@ -56,6 +58,22 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <MyIssues />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/issues/pending"
+        element={
+          <ProtectedRoute>
+            <PendingIssues />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/issues/closed"
+        element={
+          <ProtectedRoute>
+            <ClosedIssues />
           </ProtectedRoute>
         }
       />

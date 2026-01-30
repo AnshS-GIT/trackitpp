@@ -42,6 +42,18 @@ export default function AdminLayout({ children }) {
             My Issues
           </Link>
           <Link
+            to="/issues/pending"
+            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/issues/pending")}`}
+          >
+            Pending Issues
+          </Link>
+          <Link
+            to="/issues/closed"
+            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/issues/closed")}`}
+          >
+            Closed Issues
+          </Link>
+          <Link
             to="/issues"
             className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/issues")}`}
           >
