@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import { fetchIssues, updateIssueStatus, assignIssue } from "../api/issues";
 import { fetchUsers } from "../api/users";
+import { getUser } from "../utils/auth";
 
 export default function Issues() {
   const [issues, setIssues] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
 
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
@@ -15,6 +17,9 @@ export default function Issues() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        const user = getUser();
+        setCurrentUser(user);
+
         const issuesData = await fetchIssues();
         setIssues(issuesData);
 
@@ -69,6 +74,10 @@ export default function Issues() {
       </span>
     );
   };
+
+  const isManagerOrAdmin = currentUser && ["MANAGER", "ADMIN"].includes(currentUser.role);
+  // Engineers can update status but cannot CLOSE
+  const canClose = isManagerOrAdmin;
 
   return (
     <AdminLayout>
@@ -136,6 +145,7 @@ export default function Issues() {
                           {getStatusBadge(issue.status)}
                           <select
                             value={issue.status}
+                            disabled={issue.status === "CLOSED"}
                             onChange={async (e) => {
                               const newStatus = e.target.value;
                               try {
@@ -151,12 +161,13 @@ export default function Issues() {
                                 alert("Status update failed");
                               }
                             }}
-                            className="ml-2 block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs py-1"
+                            className="ml-2 block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs py-1 disabled:opacity-50"
                           >
                             <option value="OPEN">Open</option>
                             <option value="IN_PROGRESS">In Prog</option>
                             <option value="RESOLVED">Resolved</option>
-                            <option value="CLOSED">Closed</option>
+                            {canClose && <option value="CLOSED">Closed</option>}
+                            {!canClose && issue.status === "CLOSED" && <option value="CLOSED">Closed</option>}
                           </select>
                         </div>
                       </td>
@@ -170,37 +181,43 @@ export default function Issues() {
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <select
-                          value={issue.assignedTo?._id || ""}
-                          onChange={async (e) => {
-                            const assigneeId = e.target.value;
-                            try {
-                              await assignIssue(issue._id, assigneeId);
-                              setIssues((prev) =>
-                                prev.map((i) =>
-                                  i._id === issue._id
-                                    ? {
-                                      ...i,
-                                      assignedTo: users.find(
-                                        (u) => u._id === assigneeId
-                                      ),
-                                    }
-                                    : i
-                                )
-                              );
-                            } catch {
-                              alert("Assignment failed");
-                            }
-                          }}
-                          className="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs py-1"
-                        >
-                          <option value="">Unassigned</option>
-                          {users.map((u) => (
-                            <option key={u._id} value={u._id}>
-                              {u.name}
-                            </option>
-                          ))}
-                        </select>
+                        {isManagerOrAdmin ? (
+                          <select
+                            value={issue.assignedTo?._id || ""}
+                            onChange={async (e) => {
+                              const assigneeId = e.target.value;
+                              try {
+                                await assignIssue(issue._id, assigneeId);
+                                setIssues((prev) =>
+                                  prev.map((i) =>
+                                    i._id === issue._id
+                                      ? {
+                                        ...i,
+                                        assignedTo: users.find(
+                                          (u) => u._id === assigneeId
+                                        ),
+                                      }
+                                      : i
+                                  )
+                                );
+                              } catch {
+                                alert("Assignment failed");
+                              }
+                            }}
+                            className="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs py-1"
+                          >
+                            <option value="">Unassigned</option>
+                            {users.map((u) => (
+                              <option key={u._id} value={u._id}>
+                                {u.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="text-slate-500">
+                            {issue.assignedTo?.name || "Unassigned"}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
