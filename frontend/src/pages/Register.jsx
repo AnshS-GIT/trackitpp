@@ -13,20 +13,26 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
+    setError("");
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
 
     try {
-      await api.post("/users/register", {
-        name,
-        email,
-        password,
-      });
-
-      alert("Registration successful. Please login.");
-      navigate("/login");
-    } catch {
-      setError("Registration failed. Try a different email.");
+      await api.post("/users/register", { name, email, password });
+      navigate("/login", { state: { message: "Registration successful! Please login." } });
+    } catch (err) {
+      if (!err.response) {
+        setError("Network error: Unable to reach the server. Is it running?");
+      } else if (err.response.status === 400) {
+        setError("User already exists with this email.");
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -131,7 +137,7 @@ export default function Register() {
                 disabled={loading}
                 className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Register" : "Register"}
+                {loading ? "Registering..." : "Register"}
               </button>
             </div>
           </form>

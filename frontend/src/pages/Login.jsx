@@ -1,32 +1,42 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import api from "../api/axios";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccess(location.state.message);
+      window.history.replaceState({}, document.title); // Clear state
+    }
+  }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
+    setError("");
+    setSuccess("");
 
     try {
-      const res = await api.post("/users/login", {
-        email,
-        password,
-      });
-
-      const { token } = res.data;
-      localStorage.setItem("token", token);
-
+      const response = await api.post("/users/login", { email, password });
+      localStorage.setItem("token", response.data.data.token);
       navigate("/");
-    } catch {
-      setError("Invalid email or password");
+    } catch (err) {
+      if (!err.response) {
+        setError("Network error: Server unreachable.");
+      } else if (err.response.status === 401) {
+        setError("Invalid email or password.");
+      } else {
+        setError("Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -52,6 +62,15 @@ export default function Login() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {success && (
+              <div className="rounded-md bg-green-50 p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-green-800">{success}</h3>
+                  </div>
+                </div>
+              </div>
+            )}
             {error && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="flex">
