@@ -51,7 +51,22 @@ const login = async (req, res, next) => {
   }
 };
 
+const listUsers = async (req, res, next) => {
+  try {
+    const User = require("../models/user.model");
+    const users = await User.find({}, "name email role").sort({ name: 1 });
+
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   login,
+  listUsers,
 };
