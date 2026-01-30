@@ -7,6 +7,7 @@ import Issues from "../pages/Issues";
 import MyIssues from "../pages/MyIssues";
 import PendingIssues from "../pages/PendingIssues";
 import ClosedIssues from "../pages/ClosedIssues";
+import Profile from "../pages/Profile";
 import AuditLogs from "../pages/AuditLogs";
 
 const ProtectedRoute = ({ children }) => {
@@ -42,6 +43,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />

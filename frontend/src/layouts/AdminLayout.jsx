@@ -69,6 +69,13 @@ export default function AdminLayout({ children }) {
             </Link>
           )}
 
+          <Link
+            to="/profile"
+            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/profile")}`}
+          >
+            Profile
+          </Link>
+
           <div className="pt-8 mt-8 border-t border-gray-700">
             <button
               onClick={logout}
