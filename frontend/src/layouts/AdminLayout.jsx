@@ -36,6 +36,12 @@ export default function AdminLayout({ children }) {
             Dashboard
           </Link>
           <Link
+            to="/my-issues"
+            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/my-issues")}`}
+          >
+            My Issues
+          </Link>
+          <Link
             to="/issues"
             className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/issues")}`}
           >
