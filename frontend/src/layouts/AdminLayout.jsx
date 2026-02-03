@@ -127,6 +127,20 @@ export default function AdminLayout({ children }) {
           )}
 
           <Link
+            to="/organizations"
+            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/organizations")}`}
+          >
+            Organizations
+          </Link>
+
+          <Link
+            to="/issues/create"
+            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-700 text-white`}
+          >
+            + Create Issue
+          </Link>
+
+          <Link
             to="/profile"
             className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/profile")}`}
           >

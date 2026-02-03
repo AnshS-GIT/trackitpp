@@ -25,3 +25,14 @@ export const requestAssignment = async (issueId) => {
   const res = await api.post(`/issues/${issueId}/request-assignment`);
   return res.data;
 };
+
+export const createIssue = async (issueData) => {
+  const activeOrgId = localStorage.getItem("activeOrgId");
+  if (!activeOrgId) {
+    throw new Error("No active organization selected");
+  }
+  const res = await api.post("/issues", issueData, {
+    headers: { "X-Organization-Id": activeOrgId },
+  });
+  return res.data.data;
+};

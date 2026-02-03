@@ -9,6 +9,8 @@ import PendingIssues from "../pages/PendingIssues";
 import ClosedIssues from "../pages/ClosedIssues";
 import Profile from "../pages/Profile";
 import AuditLogs from "../pages/AuditLogs";
+import CreateIssue from "../pages/CreateIssue";
+import Organizations from "../pages/Organizations";
 
 const ProtectedRoute = ({ children }) => {
   return isAuthenticated() ? children : <Navigate to="/login" replace />;
@@ -83,6 +85,22 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <ClosedIssues />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/issues/create"
+        element={
+          <ProtectedRoute>
+            <CreateIssue />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/organizations"
+        element={
+          <ProtectedRoute>
+            <Organizations />
           </ProtectedRoute>
         }
       />
