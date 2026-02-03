@@ -22,6 +22,44 @@ const createOrganization = asyncHandler(async (req, res) => {
   });
 });
 
+const inviteMember = asyncHandler(async (req, res) => {
+  const { orgId } = req.params;
+  const { email, role } = req.body;
+  const requesterId = req.user.id;
+
+  if (!email) {
+    const error = new Error("Email is required");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const member = await organizationService.inviteMember({
+    orgId,
+    email,
+    role,
+    requesterId,
+  });
+
+  res.status(201).json({
+    message: "Member invited successfully",
+    member,
+  });
+});
+
+const getMembers = asyncHandler(async (req, res) => {
+  const { orgId } = req.params;
+  const requesterId = req.user.id;
+
+  const members = await organizationService.getOrganizationMembers({
+    orgId,
+    requesterId,
+  });
+
+  res.status(200).json(members);
+});
+
 module.exports = {
   createOrganization,
+  inviteMember,
+  getMembers,
 };
