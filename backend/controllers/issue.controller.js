@@ -3,6 +3,13 @@ const { createIssue, listIssues, updateIssueStatus, assignIssue, requestAssignme
 const createNewIssue = async (req, res, next) => {
   try {
     const { title, description, priority, assignedTo } = req.body;
+    const organization = req.headers["x-organization-id"];
+
+    if (!organization) {
+      const error = new Error("Organization context is required");
+      error.statusCode = 400;
+      throw error;
+    }
 
     const issue = await createIssue({
       title,
@@ -10,6 +17,7 @@ const createNewIssue = async (req, res, next) => {
       priority,
       assignedTo,
       createdBy: req.user.id,
+      organization,
     });
 
     res.status(201).json({
@@ -24,9 +32,18 @@ const createNewIssue = async (req, res, next) => {
 
 const getIssues = async (req, res, next) => {
   try {
+    const organization = req.headers["x-organization-id"];
+
+    if (!organization) {
+      const error = new Error("Organization context is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
     const issues = await listIssues({
       userId: req.user.id,
       role: req.user.role,
+      organization,
     });
 
     res.status(200).json({

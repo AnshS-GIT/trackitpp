@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const OrganizationMember = require("../models/orgMember.model");
 
 const createUser = async ({ name, email, password, role }) => {
   const existingUser = await User.findOne({ email });
@@ -43,7 +44,22 @@ const loginUser = async ({ email, password }) => {
   return user;
 };
 
+const getUserOrganizations = async (userId) => {
+  const memberships = await OrganizationMember.find({ user: userId })
+    .populate("organization", "name isActive")
+    .select("role joinedAt organization");
+
+  return memberships.map((m) => ({
+    id: m.organization._id,
+    name: m.organization.name,
+    isActive: m.organization.isActive,
+    userRole: m.role,
+    joinedAt: m.joinedAt,
+  }));
+};
+
 module.exports = {
   createUser,
   loginUser,
+  getUserOrganizations,
 };

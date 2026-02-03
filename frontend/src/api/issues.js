@@ -1,7 +1,11 @@
 import api from "./axios";
 
 export const fetchIssues = async () => {
-  const res = await api.get("/issues");
+  const activeOrgId = localStorage.getItem("activeOrgId");
+  if (!activeOrgId) return [];
+  const res = await api.get("/issues", {
+    headers: { "X-Organization-Id": activeOrgId },
+  });
   return res.data.data;
 };
 

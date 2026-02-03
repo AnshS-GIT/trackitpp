@@ -1,5 +1,6 @@
 const Issue = require("../models/issue.model");
 const { logAuditEvent } = require("./auditLog.service");
+const OrganizationMember = require("../models/orgMember.model");
 
 const createIssue = async ({
   title,
@@ -7,24 +8,36 @@ const createIssue = async ({
   priority,
   createdBy,
   assignedTo,
+  organization,
 }) => {
+  // Validate that user belongs to the organization
+  const membership = await OrganizationMember.findOne({
+    user: createdBy,
+    organization,
+  });
+
+  if (!membership) {
+    const error = new Error("You are not a member of this organization");
+    error.statusCode = 403;
+    throw error;
+  }
+
   const issue = await Issue.create({
     title,
     description,
     priority,
     createdBy,
     assignedTo,
+    organization,
   });
 
   return issue;
 };
-const listIssues = async ({ userId, role }) => {
-  let query = {};
+const listIssues = async ({ userId, role, organization }) => {
+  let query = { organization };
 
   if (role === "ENGINEER") {
-    query = {
-      $or: [{ createdBy: userId }, { assignedTo: userId }],
-    };
+    query.$or = [{ createdBy: userId }, { assignedTo: userId }];
   }
 
   const issues = await Issue.find(query)

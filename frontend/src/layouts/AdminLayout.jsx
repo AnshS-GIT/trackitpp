@@ -1,14 +1,52 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUser, logout } from "../utils/auth";
 import { useEffect, useState } from "react";
+import { getMyOrganizations } from "../api/organizations";
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
   const [user, setUser] = useState(null);
+  const [organizations, setOrganizations] = useState([]);
+  const [activeOrgId, setActiveOrgId] = useState(localStorage.getItem("activeOrgId") || "");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setUser(getUser());
+    const fetchOrgs = async () => {
+      try {
+        const currentUser = getUser();
+        setUser(currentUser);
+        if (currentUser) {
+          const res = await getMyOrganizations();
+          const orgs = res.data || [];
+          setOrganizations(orgs);
+
+          // Default selection logic
+          if (orgs.length > 0) {
+            const currentStoredId = localStorage.getItem("activeOrgId");
+            const isValid = orgs.find(o => o.id === currentStoredId);
+
+            if (!currentStoredId || !isValid) {
+              const defaultOrgId = orgs[0].id;
+              localStorage.setItem("activeOrgId", defaultOrgId);
+              setActiveOrgId(defaultOrgId);
+            } else {
+              setActiveOrgId(currentStoredId);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch organizations", err);
+      }
+    };
+    fetchOrgs();
   }, []);
+
+  const handleOrgChange = (e) => {
+    const newOrgId = e.target.value;
+    localStorage.setItem("activeOrgId", newOrgId);
+    setActiveOrgId(newOrgId);
+    window.location.reload(); // Reload to refresh data with new org context
+  };
 
   const isActive = (path) => {
     return location.pathname === path
@@ -27,6 +65,25 @@ export default function AdminLayout({ children }) {
           <p className="text-gray-400 text-xs mt-1 uppercase tracking-widest">
             {user?.role || "Guest"}
           </p>
+
+          {organizations.length > 0 && (
+            <div className="mt-4">
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                Organization
+              </label>
+              <select
+                value={activeOrgId}
+                onChange={handleOrgChange}
+                className="w-full bg-gray-700 text-white text-xs rounded border-none focus:ring-1 focus:ring-indigo-500 py-1"
+              >
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
         <nav className="mt-6 px-4 space-y-2">
           <Link
