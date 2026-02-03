@@ -62,6 +62,26 @@ const submitProof = async ({ issueId, userId, organizationId, content, links }) 
   return proof;
 };
 
+const getUserContributionStats = async (userId) => {
+  // Count accepted contributions
+  const acceptedCount = await ContributionProof.countDocuments({
+    contributor: userId,
+    status: "ACCEPTED",
+  });
+
+  // Count pending submissions (SUBMITTED status)
+  const pendingCount = await ContributionProof.countDocuments({
+    contributor: userId,
+    status: "SUBMITTED",
+  });
+
+  return {
+    acceptedContributions: acceptedCount,
+    pendingSubmissions: pendingCount,
+  };
+};
+
 module.exports = {
   submitProof,
+  getUserContributionStats,
 };

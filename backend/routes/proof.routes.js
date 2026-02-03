@@ -10,4 +10,10 @@ router.post(
   proofController.submitProof
 );
 
+router.get(
+  "/contributions/stats/me",
+  protect,
+  proofController.getMyContributionStats
+);
+
 module.exports = router;

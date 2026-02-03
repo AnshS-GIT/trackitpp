@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import { fetchIssues } from "../api/issues";
+import { getMyContributionStats } from "../api/contributions";
 import { getUser } from "../utils/auth";
 
 export default function Profile() {
     const [user, setUser] = useState(null);
     const [issues, setIssues] = useState([]);
+    const [contributionStats, setContributionStats] = useState({ acceptedContributions: 0, pendingSubmissions: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -17,6 +19,15 @@ export default function Profile() {
 
                 const data = await fetchIssues();
                 setIssues(data);
+
+                // Fetch contribution stats
+                try {
+                    const stats = await getMyContributionStats();
+                    setContributionStats(stats);
+                } catch (err) {
+                    console.error("Failed to load contribution stats:", err);
+                    // Continue even if contribution stats fail
+                }
             } catch (err) {
                 setError("Failed to load profile data");
                 console.error(err);
@@ -131,6 +142,32 @@ export default function Profile() {
                             {stats.closed}
                         </dd>
                         <p className="mt-1 text-xs text-green-500">Resolved & Closed</p>
+                    </div>
+                </div>
+
+                {/* Contribution Stats */}
+                <div>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Contribution Recognition</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-white shadow rounded-lg p-6">
+                            <dt className="text-sm font-medium text-gray-500 truncate">
+                                Accepted Contributions
+                            </dt>
+                            <dd className="mt-1 text-3xl font-semibold text-blue-600">
+                                {contributionStats.acceptedContributions}
+                            </dd>
+                            <p className="mt-1 text-xs text-blue-500">Proofs accepted by reviewers</p>
+                        </div>
+
+                        <div className="bg-white shadow rounded-lg p-6">
+                            <dt className="text-sm font-medium text-gray-500 truncate">
+                                Pending Submissions
+                            </dt>
+                            <dd className="mt-1 text-3xl font-semibold text-amber-600">
+                                {contributionStats.pendingSubmissions}
+                            </dd>
+                            <p className="mt-1 text-xs text-amber-500">Awaiting review</p>
+                        </div>
                     </div>
                 </div>
             </div>

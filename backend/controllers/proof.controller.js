@@ -37,6 +37,18 @@ const submitProof = asyncHandler(async (req, res) => {
   });
 });
 
+const getMyContributionStats = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  const stats = await proofService.getUserContributionStats(userId);
+
+  res.status(200).json({
+    success: true,
+    data: stats,
+  });
+});
+
 module.exports = {
   submitProof,
+  getMyContributionStats,
 };
