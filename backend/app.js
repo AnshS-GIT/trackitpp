@@ -8,6 +8,7 @@ const userRoutes = require("./routes/user.routes");
 const issueRoutes = require("./routes/issue.routes");
 const auditLogRoutes = require("./routes/auditLog.routes");
 const organizationRoutes = require("./routes/organization.routes");
+const contributionRoutes = require("./routes/contribution.routes");
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use("/api", userRoutes);
 app.use("/api", issueRoutes);
 app.use("/api", auditLogRoutes);
 app.use("/api", organizationRoutes);
+app.use("/api", contributionRoutes);
 
 app.use(errorHandler);
 
