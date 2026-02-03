@@ -10,6 +10,7 @@ const auditLogRoutes = require("./routes/auditLog.routes");
 const organizationRoutes = require("./routes/organization.routes");
 const contributionRoutes = require("./routes/contribution.routes");
 const proofRoutes = require("./routes/proof.routes");
+const proofReviewRoutes = require("./routes/proofReview.routes");
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api", auditLogRoutes);
 app.use("/api", organizationRoutes);
 app.use("/api", contributionRoutes);
 app.use("/api", proofRoutes);
+app.use("/api", proofReviewRoutes);
 
 app.use(errorHandler);
 
