@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import { fetchIssues } from "../api/issues";
+import { getMyOrganizations } from "../api/organizations";
 import { getUser } from "../utils/auth";
 
 export default function Dashboard() {
@@ -13,12 +14,20 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
+  const [orgName, setOrgName] = useState("");
 
   useEffect(() => {
     const loadDashboard = async () => {
       try {
         const currentUser = getUser();
         setUser(currentUser);
+
+        const activeOrgId = localStorage.getItem("activeOrgId");
+        if (activeOrgId) {
+          const orgsRes = await getMyOrganizations();
+          const org = orgsRes.data.find(o => o.id === activeOrgId);
+          if (org) setOrgName(org.name);
+        }
 
         const issues = await fetchIssues();
 
@@ -82,8 +91,8 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
           <p className="mt-1 text-sm text-slate-600">
             {user?.role === "ENGINEER"
-              ? "Overview of your assigned and created issues"
-              : "Enterprise Issue & Risk Management Overview"}
+              ? `Overview of your assigned and created issues in ${orgName}`
+              : `Enterprise Issue & Risk Management Overview - ${orgName}`}
           </p>
         </div>
 

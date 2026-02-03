@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import { fetchIssues } from "../api/issues";
+import { getMyOrganizations } from "../api/organizations";
 import { getUser } from "../utils/auth";
 
 export default function MyIssues() {
@@ -9,12 +10,20 @@ export default function MyIssues() {
     const [error, setError] = useState("");
     const [activeTab, setActiveTab] = useState("ALL");
     const [currentUser, setCurrentUser] = useState(null);
+    const [orgName, setOrgName] = useState("");
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 const user = getUser();
                 setCurrentUser(user);
+
+                const activeOrgId = localStorage.getItem("activeOrgId");
+                if (activeOrgId) {
+                    const orgsRes = await getMyOrganizations();
+                    const org = orgsRes.data.find(o => o.id === activeOrgId);
+                    if (org) setOrgName(org.name);
+                }
 
                 const data = await fetchIssues();
                 setIssues(data);
@@ -98,7 +107,7 @@ export default function MyIssues() {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">My Issues</h1>
                     <p className="mt-1 text-sm text-slate-600">
-                        {getSubtitle()}
+                        {getSubtitle()} {orgName && `• ${orgName}`}
                     </p>
                 </div>
 

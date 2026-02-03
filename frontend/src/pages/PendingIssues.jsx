@@ -1,15 +1,24 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import { fetchIssues } from "../api/issues";
+import { getMyOrganizations } from "../api/organizations";
 
 export default function PendingIssues() {
     const [issues, setIssues] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [orgName, setOrgName] = useState("");
 
     useEffect(() => {
         const loadData = async () => {
             try {
+                const activeOrgId = localStorage.getItem("activeOrgId");
+                if (activeOrgId) {
+                    const orgsRes = await getMyOrganizations();
+                    const org = orgsRes.data.find(o => o.id === activeOrgId);
+                    if (org) setOrgName(org.name);
+                }
+
                 const data = await fetchIssues();
                 setIssues(data);
             } catch (err) {
@@ -66,7 +75,7 @@ export default function PendingIssues() {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">Pending Issues</h1>
                     <p className="mt-1 text-sm text-slate-600">
-                        Issues currently in progress or awaiting resolution
+                        Issues currently in progress or awaiting resolution {orgName && `at ${orgName}`}
                     </p>
                 </div>
 
