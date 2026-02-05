@@ -21,7 +21,8 @@ export default function MyIssues() {
                 const activeOrgId = localStorage.getItem("activeOrgId");
                 if (activeOrgId) {
                     const orgsRes = await getMyOrganizations();
-                    const org = orgsRes.data.find(o => o.id === activeOrgId);
+                    const orgs = orgsRes.data?.data || orgsRes.data || [];
+                    const org = orgs.find(o => o.id === activeOrgId);
                     if (org) setOrgName(org.name);
                 }
 

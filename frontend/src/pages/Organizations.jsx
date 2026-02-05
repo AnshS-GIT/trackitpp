@@ -27,7 +27,7 @@ export default function Organizations() {
     const loadOrganizations = async () => {
         try {
             const res = await getMyOrganizations();
-            setOrganizations(res.data || []);
+            setOrganizations(res.data?.data || res.data || []);
         } catch (err) {
             setError("Failed to load organizations");
         } finally {
@@ -41,10 +41,19 @@ export default function Organizations() {
         setError("");
 
         try {
-            await createOrganization(newOrgName);
+            const res = await createOrganization(newOrgName);
+            const createdOrg = res.data;
+
             setNewOrgName("");
             setShowCreateModal(false);
+
+            // Set newly created org as active
+            if (createdOrg?.id) {
+                localStorage.setItem("activeOrgId", createdOrg.id);
+            }
+
             await loadOrganizations();
+            window.location.reload(); // Refresh to update switcher and context
         } catch (err) {
             setError(err.response?.data?.message || "Failed to create organization");
         } finally {
@@ -130,8 +139,8 @@ export default function Organizations() {
                                                 <p className="font-medium text-gray-900">{org.name}</p>
                                                 <p className="text-xs text-gray-500">Role: {org.userRole}</p>
                                             </div>
-                                            <span className={`px-2 py-1 text-xs rounded ${org.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
-                                                {org.isActive ? "Active" : "Inactive"}
+                                            <span className={`px-2 py-1 text-xs rounded ${org.id === localStorage.getItem("activeOrgId") ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                                                {org.id === localStorage.getItem("activeOrgId") ? "Active" : "Joined"}
                                             </span>
                                         </li>
                                     ))}

@@ -17,7 +17,7 @@ export default function AdminLayout({ children }) {
         setUser(currentUser);
         if (currentUser) {
           const res = await getMyOrganizations();
-          const orgs = res.data || [];
+          const orgs = res.data?.data || res.data || [];
           setOrganizations(orgs);
 
           // Default selection logic
