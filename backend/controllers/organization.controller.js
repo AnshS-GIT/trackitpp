@@ -17,8 +17,11 @@ const createOrganization = asyncHandler(async (req, res) => {
   });
 
   res.status(201).json({
-    id: organization._id,
-    name: organization.name,
+    success: true,
+    data: {
+      id: organization._id,
+      name: organization.name,
+    },
   });
 });
 

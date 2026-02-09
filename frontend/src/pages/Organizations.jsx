@@ -11,7 +11,6 @@ export default function Organizations() {
     const [newOrgName, setNewOrgName] = useState("");
     const [creating, setCreating] = useState(false);
 
-    // Member management state
     const [selectedOrg, setSelectedOrg] = useState(null);
     const [members, setMembers] = useState([]);
     const [loadingMembers, setLoadingMembers] = useState(false);
@@ -42,7 +41,8 @@ export default function Organizations() {
 
         try {
             const res = await createOrganization(newOrgName);
-            const createdOrg = res.data;
+            // res.data is expected to be { success: true, data: { id, name } }
+            const createdOrg = res.data?.data || res.data;
 
             setNewOrgName("");
             setShowCreateModal(false);
@@ -59,6 +59,11 @@ export default function Organizations() {
         } finally {
             setCreating(false);
         }
+    };
+
+    const handleSetActiveOrg = (orgId) => {
+        localStorage.setItem("activeOrgId", orgId);
+        window.location.reload();
     };
 
     const loadMembers = async (orgId) => {
@@ -139,9 +144,22 @@ export default function Organizations() {
                                                 <p className="font-medium text-gray-900">{org.name}</p>
                                                 <p className="text-xs text-gray-500">Role: {org.userRole}</p>
                                             </div>
-                                            <span className={`px-2 py-1 text-xs rounded ${org.id === localStorage.getItem("activeOrgId") ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
-                                                {org.id === localStorage.getItem("activeOrgId") ? "Active" : "Joined"}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-2 py-1 text-xs rounded ${org.id === localStorage.getItem("activeOrgId") ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                                                    {org.id === localStorage.getItem("activeOrgId") ? "Active" : "Joined"}
+                                                </span>
+                                                {org.id !== localStorage.getItem("activeOrgId") && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleSetActiveOrg(org.id);
+                                                        }}
+                                                        className="px-2 py-1 text-xs text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
+                                                    >
+                                                        Set Active
+                                                    </button>
+                                                )}
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>

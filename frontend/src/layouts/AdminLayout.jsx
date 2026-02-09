@@ -23,12 +23,15 @@ export default function AdminLayout({ children }) {
           // Default selection logic
           if (orgs.length > 0) {
             const currentStoredId = localStorage.getItem("activeOrgId");
-            const isValid = orgs.find(o => o.id === currentStoredId);
+            const activeOrg = orgs.find(o => o.id === currentStoredId);
 
-            if (!currentStoredId || !isValid) {
+            if (!currentStoredId || !activeOrg) {
               const defaultOrgId = orgs[0].id;
               localStorage.setItem("activeOrgId", defaultOrgId);
               setActiveOrgId(defaultOrgId);
+              if (currentStoredId !== defaultOrgId) {
+                window.location.reload();
+              }
             } else {
               setActiveOrgId(currentStoredId);
             }
