@@ -136,7 +136,11 @@ export default function Issues() {
           </div>
         </div>
 
-        {loading && <p className="text-gray-500">Loading issues...</p>}
+        import LoadingSpinner from "../components/LoadingSpinner";
+        // ... imports
+
+        // inside component return
+        {loading && <LoadingSpinner message="Loading issues..." />}
         {error && <p className="text-red-600 font-medium">{error}</p>}
 
         {!loading && !error && filteredIssues.length === 0 && (

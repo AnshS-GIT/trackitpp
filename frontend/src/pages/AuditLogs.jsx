@@ -61,7 +61,11 @@ export default function AuditLogs() {
           </div>
         </div>
 
-        {loading && <p className="text-gray-500">Loading audit logs...</p>}
+        import LoadingSpinner from "../components/LoadingSpinner";
+        //...
+
+        // inside component return
+        {loading && <LoadingSpinner message="Loading audit logs..." />}
         {error && <p className="text-red-600 font-medium">{error}</p>}
 
         {!loading && !error && filteredLogs.length === 0 && (
