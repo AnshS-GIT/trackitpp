@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 import { createIssue } from "../api/issues";
+import { useToast } from "../context/ToastContext";
 
 export default function CreateIssue() {
     const navigate = useNavigate();
+    const toast = useToast();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -16,13 +17,13 @@ export default function CreateIssue() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError("");
 
         try {
             await createIssue(formData);
+            toast.success("Issue created successfully");
             navigate("/issues");
         } catch (err) {
-            setError(err.response?.data?.message || err.message || "Failed to create issue");
+            // Global interceptor handles the error toast
         } finally {
             setLoading(false);
         }
@@ -45,11 +46,6 @@ export default function CreateIssue() {
 
                 <div className="bg-white shadow sm:rounded-lg">
                     <form onSubmit={handleSubmit} className="space-y-6 p-6">
-                        {error && (
-                            <div className="rounded-md bg-red-50 p-4">
-                                <p className="text-sm text-red-800">{error}</p>
-                            </div>
-                        )}
 
                         <div>
                             <label htmlFor="title" className="block text-sm font-medium text-gray-700">

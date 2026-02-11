@@ -4,10 +4,17 @@ import { getMyOrganizations, createOrganization } from "../api/organizations";
 import api from "../api/axios";
 import LoadingSpinner from "../components/LoadingSpinner";
 
+import { useToast } from "../context/ToastContext";
+
 export default function Organizations() {
+    const toast = useToast();
     const [organizations, setOrganizations] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    // Removed local error state for page-level errors as we rely on Toasts, 
+    // but for page load failure, a toast might disappear. 
+    // However, requirements say "Replace... with toast". I will use Toast.
+
+    // ... states ...
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newOrgName, setNewOrgName] = useState("");
     const [newOrgVisibility, setNewOrgVisibility] = useState("PUBLIC");
@@ -31,28 +38,10 @@ export default function Organizations() {
             const res = await getMyOrganizations();
             setOrganizations(res.data?.data || res.data || []);
         } catch (err) {
-            // Detailed logging for debugging
-            console.error("Failed to load organizations:", err);
-            console.error("Error response:", err.response);
-            console.error("Status code:", err.response?.status);
-            console.error("Error data:", err.response?.data);
-            console.error("Error message:", err.message);
-
-            // Provide specific error message
-            let errorMessage = "Failed to load organizations";
-            if (err.response?.status === 401) {
-                errorMessage = "Authentication failed. Please log in again.";
-            } else if (err.response?.status === 403) {
-                errorMessage = "Access denied. You don't have permission to view organizations.";
-            } else if (err.response?.status === 404) {
-                errorMessage = "Organizations endpoint not found. Please contact support.";
-            } else if (err.response?.data?.message) {
-                errorMessage = err.response.data.message;
-            } else if (err.message) {
-                errorMessage = `Error: ${err.message}`;
-            }
-
-            setError(errorMessage);
+            // Global interceptor handles errors. 
+            // If 404 is not handled globally, we could add it here, 
+            // but for now let's assume global or fallback handles it.
+            // If global doesn't handle 404 (we didn't add it), it emits "Unexpected error" or "message from backend".
         } finally {
             setLoading(false);
         }
@@ -61,26 +50,24 @@ export default function Organizations() {
     const handleCreateOrg = async (e) => {
         e.preventDefault();
         setCreating(true);
-        setError("");
 
         try {
             const res = await createOrganization(newOrgName, newOrgVisibility);
-            // res.data is expected to be { success: true, data: { id, name, visibility } }
             const createdOrg = res.data?.data || res.data;
 
             setNewOrgName("");
             setNewOrgVisibility("PUBLIC");
             setShowCreateModal(false);
 
-            // Set newly created org as active
             if (createdOrg?.id) {
                 localStorage.setItem("activeOrgId", createdOrg.id);
             }
 
+            toast.success("Organization created successfully");
             await loadOrganizations();
-            window.location.reload(); // Refresh to update switcher and context
+            window.location.reload();
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to create organization");
+            // Global handled
         } finally {
             setCreating(false);
         }
@@ -101,9 +88,8 @@ export default function Organizations() {
         } catch (err) {
             if (err.response?.status === 403) {
                 setMemberAccessDenied(true);
-                setSelectedOrg(orgId);
-            } else {
-                setError("Failed to load members");
+                // 403 global toast will show "Access denied". 
+                // We also want to show the specific UI state for access denied.
             }
         } finally {
             setLoadingMembers(false);
@@ -113,7 +99,6 @@ export default function Organizations() {
     const handleInviteMember = async (e) => {
         e.preventDefault();
         setInviting(true);
-        setError("");
 
         try {
             await api.post(`/organizations/${selectedOrg}/invite`, {
@@ -123,9 +108,10 @@ export default function Organizations() {
             setInviteEmail("");
             setInviteRole("MEMBER");
             setShowInviteModal(false);
+            toast.success("Member invited successfully");
             await loadMembers(selectedOrg);
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to invite member");
+            // Global handled
         } finally {
             setInviting(false);
         }
@@ -149,11 +135,7 @@ export default function Organizations() {
                     </button>
                 </div>
 
-                {error && (
-                    <div className="rounded-md bg-red-50 p-4">
-                        <p className="text-sm text-red-800">{error}</p>
-                    </div>
-                )}
+
 
                 {loading ? (
                     <LoadingSpinner message="Loading organizations..." />

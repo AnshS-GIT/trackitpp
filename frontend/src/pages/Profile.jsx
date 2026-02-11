@@ -25,12 +25,10 @@ export default function Profile() {
                     const stats = await getMyContributionStats();
                     setContributionStats(stats);
                 } catch (err) {
-                    console.error("Failed to load contribution stats:", err);
                     // Continue even if contribution stats fail
                 }
             } catch (err) {
                 setError("Failed to load profile data");
-                console.error(err);
             } finally {
                 setLoading(false);
             }
