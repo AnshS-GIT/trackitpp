@@ -28,7 +28,28 @@ export default function Organizations() {
             const res = await getMyOrganizations();
             setOrganizations(res.data?.data || res.data || []);
         } catch (err) {
-            setError("Failed to load organizations");
+            // Detailed logging for debugging
+            console.error("Failed to load organizations:", err);
+            console.error("Error response:", err.response);
+            console.error("Status code:", err.response?.status);
+            console.error("Error data:", err.response?.data);
+            console.error("Error message:", err.message);
+
+            // Provide specific error message
+            let errorMessage = "Failed to load organizations";
+            if (err.response?.status === 401) {
+                errorMessage = "Authentication failed. Please log in again.";
+            } else if (err.response?.status === 403) {
+                errorMessage = "Access denied. You don't have permission to view organizations.";
+            } else if (err.response?.status === 404) {
+                errorMessage = "Organizations endpoint not found. Please contact support.";
+            } else if (err.response?.data?.message) {
+                errorMessage = err.response.data.message;
+            } else if (err.message) {
+                errorMessage = `Error: ${err.message}`;
+            }
+
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
