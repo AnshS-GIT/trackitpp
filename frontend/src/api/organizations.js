@@ -5,7 +5,7 @@ export const getMyOrganizations = async () => {
     return res.data;
 };
 
-export const createOrganization = async (name) => {
-  const res = await api.post("/organizations", { name });
+export const createOrganization = async (name, visibility = "PUBLIC") => {
+  const res = await api.post("/organizations", { name, visibility });
   return res.data;
 };

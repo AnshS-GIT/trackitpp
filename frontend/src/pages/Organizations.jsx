@@ -9,11 +9,13 @@ export default function Organizations() {
     const [error, setError] = useState("");
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newOrgName, setNewOrgName] = useState("");
+    const [newOrgVisibility, setNewOrgVisibility] = useState("PUBLIC");
     const [creating, setCreating] = useState(false);
 
     const [selectedOrg, setSelectedOrg] = useState(null);
     const [members, setMembers] = useState([]);
     const [loadingMembers, setLoadingMembers] = useState(false);
+    const [memberAccessDenied, setMemberAccessDenied] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteRole, setInviteRole] = useState("MEMBER");
@@ -61,11 +63,12 @@ export default function Organizations() {
         setError("");
 
         try {
-            const res = await createOrganization(newOrgName);
-            // res.data is expected to be { success: true, data: { id, name } }
+            const res = await createOrganization(newOrgName, newOrgVisibility);
+            // res.data is expected to be { success: true, data: { id, name, visibility } }
             const createdOrg = res.data?.data || res.data;
 
             setNewOrgName("");
+            setNewOrgVisibility("PUBLIC");
             setShowCreateModal(false);
 
             // Set newly created org as active
@@ -89,12 +92,18 @@ export default function Organizations() {
 
     const loadMembers = async (orgId) => {
         setLoadingMembers(true);
+        setMemberAccessDenied(false);
         try {
             const res = await api.get(`/organizations/${orgId}/members`);
             setMembers(res.data || []);
             setSelectedOrg(orgId);
         } catch (err) {
-            setError("Failed to load members");
+            if (err.response?.status === 403) {
+                setMemberAccessDenied(true);
+                setSelectedOrg(orgId);
+            } else {
+                setError("Failed to load members");
+            }
         } finally {
             setLoadingMembers(false);
         }
@@ -162,7 +171,15 @@ export default function Organizations() {
                                             onClick={() => loadMembers(org.id)}
                                         >
                                             <div>
-                                                <p className="font-medium text-gray-900">{org.name}</p>
+                                                <p className="font-medium text-gray-900 flex items-center gap-2">
+                                                    {org.name}
+                                                    <span className={`px-2 py-0.5 text-xs rounded ${org.visibility === "PRIVATE"
+                                                        ? "bg-orange-100 text-orange-800"
+                                                        : "bg-green-100 text-green-800"
+                                                        }`}>
+                                                        {org.visibility || "PUBLIC"}
+                                                    </span>
+                                                </p>
                                                 <p className="text-xs text-gray-500">Role: {org.userRole}</p>
                                             </div>
                                             <div className="flex items-center gap-2">
@@ -202,6 +219,10 @@ export default function Organizations() {
 
                             {!selectedOrg ? (
                                 <p className="text-gray-500 text-sm">Select an organization to view members</p>
+                            ) : memberAccessDenied ? (
+                                <div className="text-sm text-orange-700 bg-orange-50 p-4 rounded-md">
+                                    🔒 Members are hidden in private organization
+                                </div>
                             ) : loadingMembers ? (
                                 <p className="text-gray-500 text-sm">Loading members...</p>
                             ) : members.length === 0 ? (
@@ -244,6 +265,20 @@ export default function Organizations() {
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="Enter organization name"
                                     />
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="orgVisibility" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Visibility
+                                    </label>
+                                    <select
+                                        id="orgVisibility"
+                                        value={newOrgVisibility}
+                                        onChange={(e) => setNewOrgVisibility(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                        <option value="PUBLIC">Public - Anyone can view members</option>
+                                        <option value="PRIVATE">Private - Only members can view</option>
+                                    </select>
                                 </div>
                                 <div className="flex justify-end gap-3">
                                     <button

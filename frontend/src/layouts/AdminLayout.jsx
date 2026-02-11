@@ -8,6 +8,7 @@ export default function AdminLayout({ children }) {
   const [user, setUser] = useState(null);
   const [organizations, setOrganizations] = useState([]);
   const [activeOrgId, setActiveOrgId] = useState(localStorage.getItem("activeOrgId") || "");
+  const [activeOrgVisibility, setActiveOrgVisibility] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,11 +30,13 @@ export default function AdminLayout({ children }) {
               const defaultOrgId = orgs[0].id;
               localStorage.setItem("activeOrgId", defaultOrgId);
               setActiveOrgId(defaultOrgId);
+              setActiveOrgVisibility(orgs[0].visibility);
               if (currentStoredId !== defaultOrgId) {
                 window.location.reload();
               }
             } else {
               setActiveOrgId(currentStoredId);
+              setActiveOrgVisibility(activeOrg.visibility);
             }
           }
         }
@@ -132,12 +135,15 @@ export default function AdminLayout({ children }) {
             </Link>
           )}
 
-          <Link
-            to="/organizations"
-            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/organizations")}`}
-          >
-            Organizations
-          </Link>
+
+          {!(user?.role === "MEMBER" && activeOrgVisibility === "PRIVATE") && (
+            <Link
+              to="/organizations"
+              className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/organizations")}`}
+            >
+              Organizations
+            </Link>
+          )}
 
           <Link
             to="/issues/create"
