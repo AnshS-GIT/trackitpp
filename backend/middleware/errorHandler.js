@@ -1,10 +1,21 @@
+const logger = require("../utils/logger");
+
 /**
  * Global error handler middleware
  * Formats errors into consistent response structure
  */
 function errorHandler(err, req, res, _next) {
+  const requestId = req.context?.requestId;
+
   // Handle operational errors (AppError instances)
   if (err.isOperational) {
+    // Log operational error
+    logger.error("Operational error", err, {
+      requestId,
+      method: req.method,
+      path: req.path,
+    });
+
     const response = {
       code: err.code,
       message: err.message,
@@ -19,7 +30,11 @@ function errorHandler(err, req, res, _next) {
   }
 
   // Handle unexpected errors - log but don't expose details
-  console.error("Unexpected Error:", err);
+  logger.error("Unexpected error", err, {
+    requestId,
+    method: req.method,
+    path: req.path,
+  });
 
   const response = {
     code: "INTERNAL_SERVER_ERROR",
