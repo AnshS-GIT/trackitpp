@@ -45,7 +45,37 @@ const listIssues = async ({ userId, role, organization }) => {
     .populate("assignedTo", "name email role")
     .sort({ createdAt: -1 });
 
-  return issues;
+  // Apply visibility-based masking for assigned users
+  const Organization = require("../models/organization.model");
+  
+  const processedIssues = await Promise.all(
+    issues.map(async (issue) => {
+      const issueObj = issue.toObject();
+      
+      // Check if organization is PRIVATE
+      if (issue.organization) {
+        const org = await Organization.findById(issue.organization);
+        
+        if (org && org.visibility === "PRIVATE") {
+          // Get requester's role in organization
+          const requesterMembership = await OrganizationMember.findOne({
+            user: userId,
+            organization: org._id,
+          });
+          
+          // Mask assignedTo for MEMBER and AUDITOR roles
+          if (requesterMembership && 
+              ["MEMBER", "AUDITOR"].includes(requesterMembership.role)) {
+            issueObj.assignedTo = "Hidden";
+          }
+        }
+      }
+      
+      return issueObj;
+    })
+  );
+
+  return processedIssues;
 };
 
 const updateIssueStatus = async ({ issueId, newStatus, user }) => {

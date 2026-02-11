@@ -138,18 +138,25 @@ const inviteMember = async ({ orgId, email, role, requesterId }) => {
 };
 
 const getOrganizationMembers = async ({ orgId, requesterId }) => {
-  // Check if requester is a member
-  const requesterMembership = await OrganizationMember.findOne({
-    user: requesterId,
-    organization: orgId,
-  });
+  // Fetch organization to check visibility
+  const organization = await Organization.findById(orgId);
+  
+  if (!organization) {
+    const error = new Error("Organization not found");
+    error.statusCode = 404;
+    throw error;
+  }
 
-  if (!requesterMembership) {
-    const error = new Error("You are not a member of this organization");
+  // Check if requester can view members based on visibility rules
+  const canView = await canViewMembers(orgId, requesterId);
+  
+  if (!canView) {
+    const error = new Error("Access denied. You cannot view members of this organization.");
     error.statusCode = 403;
     throw error;
   }
 
+  // Fetch and return members
   const members = await OrganizationMember.find({ organization: orgId })
     .populate("user", "name email")
     .select("role joinedAt user");
