@@ -1,12 +1,12 @@
 import api from "./axios";
 
-export const fetchIssues = async () => {
+export const fetchIssues = async (page = 1, limit = 10) => {
   const activeOrgId = localStorage.getItem("activeOrgId");
-  if (!activeOrgId) return [];
-  const res = await api.get("/issues", {
+  if (!activeOrgId) return { data: [], pagination: {} };
+  const res = await api.get(`/issues?page=${page}&limit=${limit}`, {
     headers: { "X-Organization-Id": activeOrgId },
   });
-  return res.data.data;
+  return res.data; // { data, pagination }
 };
 
 export const updateIssueStatus = async (issueId, status) => {
