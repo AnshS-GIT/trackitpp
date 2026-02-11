@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Organization = require("../models/organization.model");
 const OrganizationMember = require("../models/orgMember.model");
 const auditLogService = require("./auditLog.service");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../errors");
 
 const User = require("../models/user.model");
 
@@ -9,17 +10,16 @@ const createOrganization = async ({ name, creatorId, visibility = "PUBLIC" }) =>
   // Validation: Organization name must be unique per creator
   const existingOrg = await Organization.findOne({ name, createdBy: creatorId });
   if (existingOrg) {
-    const error = new Error("You have already created an organization with this name");
-    error.statusCode = 400;
-    throw error;
+    throw new BadRequestError("You have already created an organization with this name");
   }
 
   // Validate visibility enum
   const validVisibilities = ["PUBLIC", "PRIVATE"];
   if (visibility && !validVisibilities.includes(visibility)) {
-    const error = new Error(`Invalid visibility. Must be one of: ${validVisibilities.join(", ")}`);
-    error.statusCode = 400;
-    throw error;
+    throw new BadRequestError(
+      `Invalid visibility. Must be one of: ${validVisibilities.join(", ")}`,
+      { validValues: validVisibilities, received: visibility }
+    );
   }
 
   const session = await mongoose.startSession();
@@ -77,42 +77,33 @@ const createOrganization = async ({ name, creatorId, visibility = "PUBLIC" }) =>
 };
 
 const inviteMember = async ({ orgId, email, role, requesterId }) => {
-  // Check requester permissions
+  // Validate requester has permission (only OWNER/ADMIN can invite)
   const requesterMembership = await OrganizationMember.findOne({
     user: requesterId,
     organization: orgId,
   });
 
   if (!requesterMembership) {
-    const error = new Error("You are not a member of this organization");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("You are not a member of this organization");
   }
 
   if (!["OWNER", "ADMIN"].includes(requesterMembership.role)) {
-    const error = new Error("Only OWNER or ADMIN can invite members");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("Only owners or admins can invite members");
   }
 
-  // Check if user exists
+  // Find user to invite
   const userToInvite = await User.findOne({ email });
   if (!userToInvite) {
-    const error = new Error("User not found");
-    error.statusCode = 404;
-    throw error;
+    throw new NotFoundError("User not found with this email");
   }
 
-  // Check for duplicate membership
-  const existingMember = await OrganizationMember.findOne({
+  // Check if already a member
+  const existing = await OrganizationMember.findOne({
     user: userToInvite._id,
     organization: orgId,
   });
-
-  if (existingMember) {
-    const error = new Error("User is already a member of this organization");
-    error.statusCode = 400;
-    throw error;
+  if (existing) {
+    throw new BadRequestError("User is already a member of this organization");
   }
 
   const newMember = await OrganizationMember.create({
@@ -142,18 +133,14 @@ const getOrganizationMembers = async ({ orgId, requesterId }) => {
   const organization = await Organization.findById(orgId);
   
   if (!organization) {
-    const error = new Error("Organization not found");
-    error.statusCode = 404;
-    throw error;
+    throw new NotFoundError("Organization not found");
   }
 
   // Check if requester can view members based on visibility rules
   const canView = await canViewMembers(orgId, requesterId);
   
   if (!canView) {
-    const error = new Error("Access denied. You cannot view members of this organization.");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("Access denied. You cannot view members of this organization.");
   }
 
   // Fetch and return members

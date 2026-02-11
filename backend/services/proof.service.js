@@ -1,22 +1,19 @@
 const ContributionProof = require("../models/contributionProof.model");
 const ContributionRequest = require("../models/contributionRequest.model");
 const Issue = require("../models/issue.model");
+const { NotFoundError, ConflictError, ForbiddenError } = require("../errors");
 const { logAuditEvent } = require("./auditLog.service");
 
 const submitProof = async ({ issueId, userId, organizationId, content, links }) => {
   // Verify the issue exists
   const issue = await Issue.findById(issueId);
   if (!issue) {
-    const error = new Error("Issue not found");
-    error.statusCode = 404;
-    throw error;
+    throw new NotFoundError("Issue not found");
   }
 
   // Issue must not be CLOSED
   if (issue.status === "CLOSED") {
-    const error = new Error("Cannot submit proof for closed issues");
-    error.statusCode = 409;
-    throw error;
+    throw new ConflictError("Cannot submit proof for closed issues");
   }
 
   // Check if user has an APPROVED contribution request for this issue
@@ -27,9 +24,7 @@ const submitProof = async ({ issueId, userId, organizationId, content, links }) 
   });
 
   if (!approvedRequest) {
-    const error = new Error("You must have an approved contribution request to submit proof");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("You must have an approved contribution request to submit proof");
   }
 
   // Create contribution proof (multiple submissions allowed)

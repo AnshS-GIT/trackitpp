@@ -1,6 +1,7 @@
 const Issue = require("../models/issue.model");
 const { logAuditEvent } = require("./auditLog.service");
 const OrganizationMember = require("../models/orgMember.model");
+const { ForbiddenError, NotFoundError, BadRequestError } = require("../errors");
 
 const createIssue = async ({
   title,
@@ -17,9 +18,7 @@ const createIssue = async ({
   });
 
   if (!membership) {
-    const error = new Error("You are not a member of this organization");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("You are not a member of this organization");
   }
 
   const issue = await Issue.create({
@@ -82,9 +81,7 @@ const updateIssueStatus = async ({ issueId, newStatus, user }) => {
   const issue = await Issue.findById(issueId);
 
   if (!issue) {
-    const error = new Error("Issue not found");
-    error.statusCode = 404;
-    throw error;
+    throw new NotFoundError("Issue not found");
   }
 
   const validTransitions = {
@@ -95,20 +92,16 @@ const updateIssueStatus = async ({ issueId, newStatus, user }) => {
   };
 
   if (!validTransitions[issue.status].includes(newStatus)) {
-    const error = new Error(
+    throw new BadRequestError(
       `Invalid status transition from ${issue.status} to ${newStatus}`
     );
-    error.statusCode = 400;
-    throw error;
   }
 
   if (
     newStatus === "CLOSED" &&
     !["MANAGER", "ADMIN"].includes(user.role)
   ) {
-    const error = new Error("Only managers or admins can close issues");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("Only managers or admins can close issues");
   }
 
   const oldStatus = issue.status;
@@ -130,17 +123,13 @@ const updateIssueStatus = async ({ issueId, newStatus, user }) => {
 
 const assignIssue = async ({ issueId, assigneeId, user }) => {
   if (!["MANAGER", "ADMIN"].includes(user.role)) {
-    const error = new Error("Only managers or admins can assign issues");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("Only managers or admins can assign issues");
   }
 
   const issue = await Issue.findById(issueId);
 
   if (!issue) {
-    const error = new Error("Issue not found");
-    error.statusCode = 404;
-    throw error;
+    throw new NotFoundError("Issue not found");
   }
 
   const oldAssignee = issue.assignedTo;
@@ -161,23 +150,17 @@ const assignIssue = async ({ issueId, assigneeId, user }) => {
 };
 const requestAssignment = async ({ issueId, user }) => {
   if (user.role !== "ENGINEER") {
-    const error = new Error("Only engineers can request assignment");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("Only engineers can request assignment");
   }
 
   const issue = await Issue.findById(issueId);
 
   if (!issue) {
-    const error = new Error("Issue not found");
-    error.statusCode = 404;
-    throw error;
+    throw new NotFoundError("Issue not found");
   }
 
   if (issue.assignedTo) {
-    const error = new Error("Issue is already assigned");
-    error.statusCode = 400;
-    throw error;
+    throw new BadRequestError("Issue is already assigned");
   }
 
   await logAuditEvent({

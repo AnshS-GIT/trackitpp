@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { UnauthorizedError } = require("../errors");
 
 const protect = (req, res, next) => {
   try {
@@ -12,9 +13,7 @@ const protect = (req, res, next) => {
     }
 
     if (!token) {
-      const error = new Error("Not authorized, token missing");
-      error.statusCode = 401;
-      throw error;
+      throw new UnauthorizedError("Not authorized, token missing");
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -26,8 +25,13 @@ const protect = (req, res, next) => {
 
     next();
   } catch (error) {
-    error.statusCode = 401;
-    next(error);
+    // If it's already an AppError, just pass it on
+    if (error.isOperational) {
+      next(error);
+    } else {
+      // Otherwise wrap JWT errors as UnauthorizedError
+      next(new UnauthorizedError("Not authorized, invalid token"));
+    }
   }
 };
 

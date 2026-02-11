@@ -1,29 +1,24 @@
 const ContributionRequest = require("../models/contributionRequest.model");
 const Issue = require("../models/issue.model");
 const OrganizationMember = require("../models/orgMember.model");
+const { NotFoundError, ConflictError, BadRequestError, ForbiddenError } = require("../errors");
 const { logAuditEvent } = require("./auditLog.service");
 
 const requestContribution = async ({ issueId, userId, organizationId }) => {
   // Fetch the issue
   const issue = await Issue.findById(issueId);
   if (!issue) {
-    const error = new Error("Issue not found");
-    error.statusCode = 404;
-    throw error;
+    throw new NotFoundError("Issue not found");
   }
 
   // Prevent request if issue is CLOSED or RESOLVED
   if (issue.status === "CLOSED" || issue.status === "RESOLVED") {
-    const error = new Error("Cannot request contribution for closed or resolved issues");
-    error.statusCode = 409;
-    throw error;
+    throw new ConflictError("Cannot request contribution for closed or resolved issues");
   }
 
   // Check if user is already assigned to the issue
   if (issue.assignedTo && issue.assignedTo.toString() === userId.toString()) {
-    const error = new Error("You are already assigned to this issue");
-    error.statusCode = 400;
-    throw error;
+    throw new BadRequestError("You are already assigned to this issue");
   }
 
   // Verify user is a member of the organization
@@ -33,9 +28,7 @@ const requestContribution = async ({ issueId, userId, organizationId }) => {
   });
 
   if (!membership) {
-    const error = new Error("You are not a member of this organization");
-    error.statusCode = 403;
-    throw error;
+    throw new ForbiddenError("You are not a member of this organization");
   }
 
   // Check for existing contribution request
@@ -45,9 +38,7 @@ const requestContribution = async ({ issueId, userId, organizationId }) => {
   });
 
   if (existingRequest) {
-    const error = new Error("You have already requested to contribute to this issue");
-    error.statusCode = 400;
-    throw error;
+    throw new BadRequestError("You have already requested to contribute to this issue");
   }
 
   // Create contribution request
