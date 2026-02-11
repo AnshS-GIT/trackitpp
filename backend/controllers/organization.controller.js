@@ -2,7 +2,7 @@ const organizationService = require("../services/organization.service");
 const asyncHandler = require("../middleware/asyncHandler");
 
 const createOrganization = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+  const { name, visibility } = req.body;
   const creatorId = req.user.id;
 
   if (!name) {
@@ -14,6 +14,7 @@ const createOrganization = asyncHandler(async (req, res) => {
   const organization = await organizationService.createOrganization({
     name,
     creatorId,
+    visibility,
   });
 
   res.status(201).json({
@@ -21,6 +22,7 @@ const createOrganization = asyncHandler(async (req, res) => {
     data: {
       id: organization._id,
       name: organization.name,
+      visibility: organization.visibility,
     },
   });
 });

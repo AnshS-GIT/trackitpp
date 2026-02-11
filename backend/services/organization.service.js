@@ -5,11 +5,19 @@ const auditLogService = require("./auditLog.service");
 
 const User = require("../models/user.model");
 
-const createOrganization = async ({ name, creatorId }) => {
+const createOrganization = async ({ name, creatorId, visibility = "PUBLIC" }) => {
   // Validation: Organization name must be unique per creator
   const existingOrg = await Organization.findOne({ name, createdBy: creatorId });
   if (existingOrg) {
     const error = new Error("You have already created an organization with this name");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Validate visibility enum
+  const validVisibilities = ["PUBLIC", "PRIVATE"];
+  if (visibility && !validVisibilities.includes(visibility)) {
+    const error = new Error(`Invalid visibility. Must be one of: ${validVisibilities.join(", ")}`);
     error.statusCode = 400;
     throw error;
   }
@@ -23,6 +31,7 @@ const createOrganization = async ({ name, creatorId }) => {
         {
           name,
           createdBy: creatorId,
+          visibility: visibility || "PUBLIC",
         },
       ],
       { session }
@@ -49,7 +58,10 @@ const createOrganization = async ({ name, creatorId }) => {
         entityType: "Organization",
         entityId: organization._id,
         performedBy: creatorId,
-        newValue: { name: organization.name },
+        newValue: { 
+          name: organization.name,
+          visibility: organization.visibility,
+        },
       });
     } catch (auditError) {
       console.error("Failed to log audit event:", auditError);
@@ -151,8 +163,43 @@ const getOrganizationMembers = async ({ orgId, requesterId }) => {
   }));
 };
 
+/**
+ * Helper function to check if a user can view organization members
+ * @param {String} orgId - Organization ID
+ * @param {String} userId - User ID to check permissions for
+ * @returns {Boolean} - True if user can view members, false otherwise
+ */
+const canViewMembers = async (orgId, userId) => {
+  if (!orgId || !userId) {
+    return false;
+  }
+
+  // Fetch organization
+  const organization = await Organization.findById(orgId);
+  if (!organization) {
+    return false;
+  }
+
+  // PUBLIC organizations: anyone can view members
+  if (organization.visibility === "PUBLIC") {
+    return true;
+  }
+
+  // PRIVATE organizations: only members can view
+  if (organization.visibility === "PRIVATE") {
+    const membership = await OrganizationMember.findOne({
+      user: userId,
+      organization: orgId,
+    });
+    return !!membership;
+  }
+
+  return false;
+};
+
 module.exports = {
   createOrganization,
   inviteMember,
   getOrganizationMembers,
+  canViewMembers,
 };
