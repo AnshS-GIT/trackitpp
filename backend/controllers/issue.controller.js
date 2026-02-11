@@ -32,24 +32,15 @@ const createNewIssue = async (req, res, next) => {
 
 const getIssues = async (req, res, next) => {
   try {
-    const organization = req.headers["x-organization-id"];
-
-    if (!organization) {
-      const error = new Error("Organization context is required");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const issues = await listIssues({
+    const { page, limit } = req.query;
+    const result = await listIssues({
       userId: req.user.id,
       role: req.user.role,
-      organization,
+      organization: req.headers["x-organization-id"],
+      page,
+      limit,
     });
-
-    res.status(200).json({
-      success: true,
-      data: issues,
-    });
+    res.json(result);
   } catch (error) {
     next(error);
   }

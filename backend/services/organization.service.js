@@ -3,6 +3,7 @@ const Organization = require("../models/organization.model");
 const OrganizationMember = require("../models/orgMember.model");
 const auditLogService = require("./auditLog.service");
 const { BadRequestError, NotFoundError, ForbiddenError } = require("../errors");
+const { parsePaginationParams, formatPaginatedResponse } = require("../utils/pagination");
 
 const User = require("../models/user.model");
 
@@ -128,7 +129,10 @@ const inviteMember = async ({ orgId, email, role, requesterId }) => {
   return newMember;
 };
 
-const getOrganizationMembers = async ({ orgId, requesterId }) => {
+const getOrganizationMembers = async ({ orgId, requesterId, page, limit }) => {
+  // Parse and validate pagination params
+  const { skip, page: validPage, limit: validLimit } = parsePaginationParams({ page, limit });
+
   // Fetch organization to check visibility
   const organization = await Organization.findById(orgId);
   
@@ -143,18 +147,26 @@ const getOrganizationMembers = async ({ orgId, requesterId }) => {
     throw new ForbiddenError("Access denied. You cannot view members of this organization.");
   }
 
-  // Fetch and return members
-  const members = await OrganizationMember.find({ organization: orgId })
-    .populate("user", "name email")
-    .select("role joinedAt user");
+  // Fetch members with pagination and get total count
+  const [members, total] = await Promise.all([
+    OrganizationMember.find({ organization: orgId })
+      .populate("user", "name email")
+      .select("role joinedAt user")
+      .skip(skip)
+      .limit(validLimit)
+      .sort({ joinedAt: -1 }),
+    OrganizationMember.countDocuments({ organization: orgId }),
+  ]);
 
-  return members.map((member) => ({
+  const formattedMembers = members.map((member) => ({
     id: member._id,
     name: member.user.name,
     email: member.user.email,
     role: member.role,
     joinedAt: member.joinedAt,
   }));
+
+  return formatPaginatedResponse(formattedMembers, validPage, validLimit, total);
 };
 
 /**

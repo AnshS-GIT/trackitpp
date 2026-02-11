@@ -2,14 +2,11 @@ const { getAuditLogs } = require("../services/auditLog.service");
 
 const fetchAuditLogs = async (req, res, next) => {
   try {
-    const { entityType, entityId } = req.query;
+    const { entityType, entityId, page, limit } = req.query;
 
-    const logs = await getAuditLogs({ entityType, entityId });
+    const result = await getAuditLogs({ entityType, entityId, page, limit });
 
-    res.status(200).json({
-      success: true,
-      data: logs,
-    });
+    res.json(result);
   } catch (error) {
     next(error);
   }

@@ -53,14 +53,17 @@ const inviteMember = asyncHandler(async (req, res) => {
 
 const getMembers = asyncHandler(async (req, res) => {
   const { orgId } = req.params;
+  const { page, limit } = req.query;
   const requesterId = req.user.id;
 
-  const members = await organizationService.getOrganizationMembers({
+  const result = await organizationService.getOrganizationMembers({
     orgId,
     requesterId,
+    page,
+    limit,
   });
 
-  res.status(200).json(members);
+  res.json(result);
 });
 
 module.exports = {

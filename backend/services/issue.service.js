@@ -2,6 +2,7 @@ const Issue = require("../models/issue.model");
 const { logAuditEvent } = require("./auditLog.service");
 const OrganizationMember = require("../models/orgMember.model");
 const { ForbiddenError, NotFoundError, BadRequestError } = require("../errors");
+const { parsePaginationParams, formatPaginatedResponse } = require("../utils/pagination");
 
 const createIssue = async ({
   title,
@@ -32,17 +33,26 @@ const createIssue = async ({
 
   return issue;
 };
-const listIssues = async ({ userId, role, organization }) => {
+const listIssues = async ({ userId, role, organization, page, limit }) => {
+  // Parse and validate pagination params
+  const { skip, page: validPage, limit: validLimit } = parsePaginationParams({ page, limit });
+
   let query = { organization };
 
   if (role === "ENGINEER") {
     query.$or = [{ createdBy: userId }, { assignedTo: userId }];
   }
 
-  const issues = await Issue.find(query)
-    .populate("createdBy", "name email role")
-    .populate("assignedTo", "name email role")
-    .sort({ createdAt: -1 });
+  // Execute query with pagination and get total count
+  const [issues, total] = await Promise.all([
+    Issue.find(query)
+      .populate("createdBy", "name email role")
+      .populate("assignedTo", "name email role")
+      .skip(skip)
+      .limit(validLimit)
+      .sort({ createdAt: -1 }),
+    Issue.countDocuments(query),
+  ]);
 
   // Apply visibility-based masking for assigned users
   const Organization = require("../models/organization.model");
@@ -74,7 +84,7 @@ const listIssues = async ({ userId, role, organization }) => {
     })
   );
 
-  return processedIssues;
+  return formatPaginatedResponse(processedIssues, validPage, validLimit, total);
 };
 
 const updateIssueStatus = async ({ issueId, newStatus, user }) => {
