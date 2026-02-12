@@ -319,6 +319,27 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Footer */}
+            <footer className="py-8 bg-gray-100 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-500">
+                        TrackIT++ — Secure Multi-Tenant Issue & Collaboration Platform
+                    </p>
+                    <div className="mt-3 flex justify-center items-center gap-4 text-xs text-gray-400 dark:text-gray-600">
+                        <span>© {new Date().getFullYear()} TrackIT++</span>
+                        <span>·</span>
+                        <a
+                            href="https://github.com/AnshS-GIT/trackitpp"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                        >
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }
