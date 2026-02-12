@@ -105,6 +105,66 @@ export default function LandingPage() {
                     </div>
                 </div>
             </main>
+
+            {/* Features Section */}
+            <section className="py-24 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Section header */}
+                    <div className="text-center mb-16">
+                        <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                            Core Features
+                        </h3>
+                        <p className="mt-3 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                            Everything you need to manage issues, enforce governance, and maintain accountability.
+                        </p>
+                    </div>
+
+                    {/* Feature grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Multi-Tenant Organizations</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Create and join isolated organizations. Each tenant operates independently with its own data, members, and configuration.
+                            </p>
+                        </div>
+
+                        <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Role-Based Access Control</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Fine-grained permissions with Owner, Admin, Manager, Engineer, and Auditor roles. Every action is permissioned.
+                            </p>
+                        </div>
+
+                        <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Issue Lifecycle Management</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Track issues from creation to closure with status workflows, priority levels, and assignment management.
+                            </p>
+                        </div>
+
+                        <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Immutable Audit Logging</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Every action is recorded — assignments, status changes, and membership events — providing a tamper-proof audit trail.
+                            </p>
+                        </div>
+
+                        <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Invite & Collaboration</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Onboard team members via invite codes or direct invitations. Manage roles and visibility per organization.
+                            </p>
+                        </div>
+
+                        <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Contribution Recognition</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Engineers can submit proof-of-work for resolved issues. Reviewers accept contributions, building a visible track record.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }
