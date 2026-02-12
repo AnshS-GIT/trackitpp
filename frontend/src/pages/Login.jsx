@@ -12,12 +12,15 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const hasShownMessage = useState(false);
+
   useEffect(() => {
-    if (location.state?.message) {
+    if (location.state?.message && !hasShownMessage[0]) {
       toast.info(location.state.message);
+      hasShownMessage[1](true);
       window.history.replaceState({}, document.title);
     }
-  }, [location, toast]);
+  }, [location.state?.message]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
