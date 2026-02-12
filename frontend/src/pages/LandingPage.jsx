@@ -214,6 +214,82 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Security & Architecture */}
+            <section className="py-24 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                            Built with Enterprise-Grade Security
+                        </h3>
+                        <p className="mt-3 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                            TrackIT++ is designed with strict isolation, structured error handling, and secure access enforcement at every layer.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <span className="text-2xl shrink-0">🔐</span>
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white">JWT Authentication</h4>
+                                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    Secure login with token-based authentication and protected routes.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <span className="text-2xl shrink-0">🏢</span>
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Organization-Level Isolation</h4>
+                                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    All data is strictly scoped by organization to prevent cross-tenant access.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <span className="text-2xl shrink-0">🛡️</span>
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Role-Based Access Control</h4>
+                                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    Access is enforced at the service layer, not just in the frontend.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <span className="text-2xl shrink-0">📜</span>
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Audit Logging</h4>
+                                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    Critical actions are logged to maintain accountability and traceability.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <span className="text-2xl shrink-0">🚦</span>
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Rate Limiting & Security Middleware</h4>
+                                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    Production-grade security headers and request throttling are enabled.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <span className="text-2xl shrink-0">♻️</span>
+                            <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Soft Delete & Data Integrity</h4>
+                                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    Data is never permanently removed without safeguards, preserving audit trails.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }
