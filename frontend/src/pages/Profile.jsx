@@ -17,8 +17,8 @@ export default function Profile() {
                 const currentUser = getUser();
                 setUser(currentUser);
 
-                const data = await fetchIssues();
-                setIssues(data);
+                const response = await fetchIssues();
+                setIssues(response.data || response || []);
 
                 // Fetch contribution stats
                 try {

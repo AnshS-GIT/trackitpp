@@ -19,8 +19,8 @@ export default function ClosedIssues() {
                     const org = orgs.find(o => o.id === activeOrgId);
                     if (org) setOrgName(org.name);
                 }
-                const data = await fetchIssues();
-                setIssues(data);
+                const response = await fetchIssues();
+                setIssues(response.data || response || []);
             } catch (err) {
                 setError("Failed to load closed issues");
 

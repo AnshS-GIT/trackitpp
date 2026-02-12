@@ -20,8 +20,8 @@ export default function PendingIssues() {
                     if (org) setOrgName(org.name);
                 }
 
-                const data = await fetchIssues();
-                setIssues(data);
+                const response = await fetchIssues();
+                setIssues(response.data || response || []);
             } catch (err) {
                 setError("Failed to load pending issues");
 

@@ -30,7 +30,8 @@ export default function Dashboard() {
           if (org) setOrgName(org.name);
         }
 
-        const issues = await fetchIssues();
+        const response = await fetchIssues();
+        const issues = response.data || response || [];
 
         // Calculate statistics from role-filtered issues
         const statistics = {
