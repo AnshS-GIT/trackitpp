@@ -42,6 +42,11 @@ const issueSchema = new mongoose.Schema(
       ref: "Organization",
       required: true,
     },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   baseOptions
 );

@@ -37,7 +37,7 @@ const listIssues = async ({ userId, role, organization, page, limit }) => {
   // Parse and validate pagination params
   const { skip, page: validPage, limit: validLimit } = parsePaginationParams({ page, limit });
 
-  let query = { organization };
+  let query = { organization, deletedAt: null };
 
   if (role === "ENGINEER") {
     query.$or = [{ createdBy: userId }, { assignedTo: userId }];
@@ -88,7 +88,7 @@ const listIssues = async ({ userId, role, organization, page, limit }) => {
 };
 
 const updateIssueStatus = async ({ issueId, newStatus, user }) => {
-  const issue = await Issue.findById(issueId);
+  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
 
   if (!issue) {
     throw new NotFoundError("Issue not found");
@@ -136,7 +136,7 @@ const assignIssue = async ({ issueId, assigneeId, user }) => {
     throw new ForbiddenError("Only managers or admins can assign issues");
   }
 
-  const issue = await Issue.findById(issueId);
+  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
 
   if (!issue) {
     throw new NotFoundError("Issue not found");
@@ -163,7 +163,7 @@ const requestAssignment = async ({ issueId, user }) => {
     throw new ForbiddenError("Only engineers can request assignment");
   }
 
-  const issue = await Issue.findById(issueId);
+  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
 
   if (!issue) {
     throw new NotFoundError("Issue not found");
@@ -185,4 +185,39 @@ const requestAssignment = async ({ issueId, user }) => {
   return { success: true, message: "Assignment request logged successfully" };
 };
 
-module.exports = {createIssue,listIssues,updateIssueStatus,assignIssue,requestAssignment,};
+const deleteIssue = async ({ issueId, user }) => {
+  // Only ADMIN, MANAGER, or OWNER (if logic existed) can delete
+  // Assumption from plan: Only ADMIN/MANAGER can delete
+  if (!["MANAGER", "ADMIN"].includes(user.role)) {
+    throw new ForbiddenError("Only managers or admins can delete issues");
+  }
+
+  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
+
+  if (!issue) {
+    throw new NotFoundError("Issue not found");
+  }
+
+  issue.deletedAt = new Date();
+  await issue.save();
+
+  await logAuditEvent({
+    action: "ISSUE_SOFT_DELETED",
+    entityType: "ISSUE",
+    entityId: issue._id,
+    performedBy: user.id,
+    oldValue: { deletedAt: null },
+    newValue: { deletedAt: issue.deletedAt },
+  });
+
+  return { success: true, message: "Issue deleted successfully" };
+};
+
+module.exports = {
+  createIssue,
+  listIssues,
+  updateIssueStatus,
+  assignIssue,
+  requestAssignment,
+  deleteIssue,
+};
