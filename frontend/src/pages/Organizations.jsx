@@ -151,7 +151,7 @@ export default function Organizations() {
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Organizations</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Organizations</h1>
                         <p className="mt-1 text-sm text-slate-600">
                             Manage your organizations and team members
                         </p>
@@ -170,8 +170,8 @@ export default function Organizations() {
                     <LoadingSpinner message="Loading organizations..." />
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="bg-white shadow rounded-lg p-6">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Organizations</h2>
+                        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Organizations</h2>
                             {organizations.length === 0 ? (
                                 <p className="text-gray-500 text-sm">No organizations yet. Create one to get started.</p>
                             ) : (
@@ -179,11 +179,11 @@ export default function Organizations() {
                                     {organizations.map((org) => (
                                         <li
                                             key={org.id}
-                                            className="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50 cursor-pointer"
+                                            className="flex items-center justify-between p-3 border dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
                                             onClick={() => loadMembers(org.id)}
                                         >
                                             <div>
-                                                <p className="font-medium text-gray-900 flex items-center gap-2">
+                                                <p className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                                                     {org.name}
                                                     <span className={`px-2 py-0.5 text-xs rounded ${org.visibility === "PRIVATE"
                                                         ? "bg-orange-100 text-orange-800"
@@ -216,9 +216,9 @@ export default function Organizations() {
                             )}
                         </div>
 
-                        <div className="bg-white shadow rounded-lg p-6">
+                        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-gray-900">Members</h2>
+                                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Members</h2>
                                 {selectedOrg && (
                                     <div className="flex gap-2">
                                         {/* Check if current user is OWNER or ADMIN for this org */}
@@ -262,9 +262,9 @@ export default function Organizations() {
                             ) : (
                                 <ul className="space-y-2">
                                     {members.map((member) => (
-                                        <li key={member.id} className="flex items-center justify-between p-3 border rounded-md">
+                                        <li key={member.id} className="flex items-center justify-between p-3 border dark:border-gray-600 rounded-md">
                                             <div>
-                                                <p className="font-medium text-gray-900">{member.name}</p>
+                                                <p className="font-medium text-gray-900 dark:text-white">{member.name}</p>
                                                 <p className="text-xs text-gray-500">{member.email}</p>
                                             </div>
                                             <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
@@ -281,8 +281,8 @@ export default function Organizations() {
                 {/* Create Organization Modal */}
                 {showCreateModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Organization</h3>
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create New Organization</h3>
                             <form onSubmit={handleCreateOrg}>
                                 <div className="mb-4">
                                     <label htmlFor="orgName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -294,7 +294,7 @@ export default function Organizations() {
                                         value={newOrgName}
                                         onChange={(e) => setNewOrgName(e.target.value)}
                                         required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="Enter organization name"
                                     />
                                 </div>

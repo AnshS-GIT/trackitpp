@@ -73,7 +73,7 @@ export default function ClosedIssues() {
         <AdminLayout>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Closed Issues</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Closed Issues</h1>
                     <p className="mt-1 text-sm text-slate-600">
                         Issues that have been resolved or closed {orgName && `at ${orgName}`}
                     </p>
@@ -83,16 +83,16 @@ export default function ClosedIssues() {
                 {error && <p className="text-red-600 font-medium">{error}</p>}
 
                 {!loading && !error && filteredIssues.length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-lg shadow">
+                    <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
                         <p className="text-gray-500">No closed issues found.</p>
                     </div>
                 )}
 
                 {!loading && !error && filteredIssues.length > 0 && (
-                    <div className="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                    <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg border border-gray-200 dark:border-gray-700">
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                                <thead className="bg-gray-50 dark:bg-gray-700">
                                     <tr>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -101,10 +101,10 @@ export default function ClosedIssues() {
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     {filteredIssues.map((issue) => (
-                                        <tr key={issue._id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <tr key={issue._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                                 {issue.title}
                                             </td>
 

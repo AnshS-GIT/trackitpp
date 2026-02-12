@@ -135,14 +135,14 @@ export default function MyIssues() {
         <AdminLayout>
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">My Issues</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Issues</h1>
                     <p className="mt-1 text-sm text-slate-600">
                         {getSubtitle()} {orgName && `• ${orgName}`}
                     </p>
                 </div>
 
                 {/* Tabs */}
-                <div className="border-b border-gray-200">
+                <div className="border-b border-gray-200 dark:border-gray-700">
                     <nav className="-mb-px flex space-x-8">
                         {tabs.map((tab) => (
                             <button
@@ -166,17 +166,17 @@ export default function MyIssues() {
                 {error && <p className="text-red-600 font-medium">{error}</p>}
 
                 {!loading && !error && filteredIssues.length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-lg shadow">
+                    <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
                         <p className="text-gray-500">No issues found matching assignment or criteria.</p>
                     </div>
                 )}
 
                 {!loading && !error && filteredIssues.length > 0 && (
                     <>
-                        <div className="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg border border-gray-200 dark:border-gray-700">
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
+                                    <thead className="bg-gray-50 dark:bg-gray-700">
                                         <tr>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -185,10 +185,10 @@ export default function MyIssues() {
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                         {filteredIssues.map((issue) => (
-                                            <tr key={issue._id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <tr key={issue._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                                     {issue.title}
                                                 </td>
 
@@ -215,7 +215,7 @@ export default function MyIssues() {
                         </div>
 
                         {/* Pagination Controls */}
-                        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow mt-4">
+                        <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6 rounded-lg shadow mt-4">
                             <div className="flex flex-1 justify-between sm:hidden">
                                 <button
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}

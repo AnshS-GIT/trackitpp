@@ -38,13 +38,13 @@ export default function CreateIssue() {
         <AdminLayout>
             <div className="max-w-3xl mx-auto space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Create New Issue</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Create New Issue</h1>
                     <p className="mt-1 text-sm text-slate-600">
                         Report a new issue or risk item for the active organization
                     </p>
                 </div>
 
-                <div className="bg-white shadow sm:rounded-lg">
+                <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                     <form onSubmit={handleSubmit} className="space-y-6 p-6">
 
                         <div>

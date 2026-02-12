@@ -86,15 +86,15 @@ export default function Profile() {
         <AdminLayout>
             <div className="max-w-4xl mx-auto space-y-8">
                 {/* Profile Header */}
-                <div className="bg-white shadow rounded-lg overflow-hidden">
-                    <div className="bg-gray-800 h-32"></div>
+                <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                    <div className="bg-gray-800 dark:bg-gray-950 h-32"></div>
                     <div className="px-6 pb-6">
                         <div className="relative flex items-end -mt-12 mb-4">
                             <div className="h-24 w-24 rounded-full ring-4 ring-white bg-slate-200 flex items-center justify-center text-2xl font-bold text-slate-500">
                                 {user.name?.charAt(0).toUpperCase()}
                             </div>
                             <div className="ml-4 mb-1">
-                                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
                                 <p className="text-sm text-gray-500">{user.email}</p>
                             </div>
                         </div>
@@ -113,16 +113,16 @@ export default function Profile() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white shadow rounded-lg p-6">
+                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                         <dt className="text-sm font-medium text-gray-500 truncate">
                             Total Issues
                         </dt>
-                        <dd className="mt-1 text-3xl font-semibold text-gray-900">
+                        <dd className="mt-1 text-3xl font-semibold text-gray-900 dark:text-white">
                             {stats.total}
                         </dd>
                     </div>
 
-                    <div className="bg-white shadow rounded-lg p-6">
+                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                         <dt className="text-sm font-medium text-gray-500 truncate">
                             Pending Issues
                         </dt>
@@ -132,7 +132,7 @@ export default function Profile() {
                         <p className="mt-1 text-xs text-amber-500">Open & In Progress</p>
                     </div>
 
-                    <div className="bg-white shadow rounded-lg p-6">
+                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                         <dt className="text-sm font-medium text-gray-500 truncate">
                             Closed Issues
                         </dt>
@@ -145,9 +145,9 @@ export default function Profile() {
 
                 {/* Contribution Stats */}
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Contribution Recognition</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contribution Recognition</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-white shadow rounded-lg p-6">
+                        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                             <dt className="text-sm font-medium text-gray-500 truncate">
                                 Accepted Contributions
                             </dt>
@@ -157,7 +157,7 @@ export default function Profile() {
                             <p className="mt-1 text-xs text-blue-500">Proofs accepted by reviewers</p>
                         </div>
 
-                        <div className="bg-white shadow rounded-lg p-6">
+                        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                             <dt className="text-sm font-medium text-gray-500 truncate">
                                 Pending Submissions
                             </dt>

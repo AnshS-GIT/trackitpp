@@ -58,16 +58,16 @@ export default function AdminLayout({ children }) {
 
   const isActive = (path) => {
     return location.pathname === path
-      ? "bg-gray-900 text-white"
+      ? "bg-gray-900 text-white dark:bg-gray-700"
       : "text-gray-300 hover:bg-gray-700 hover:text-white";
   };
 
   const showAuditLogs = user && ["ADMIN", "AUDITOR"].includes(user.role);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 flex-shrink-0">
+      <aside className="w-64 bg-gray-800 dark:bg-gray-950 flex-shrink-0">
         <div className="p-6">
           <h2 className="text-2xl font-bold text-white tracking-wider">TrackIT++</h2>
           <p className="text-gray-400 text-xs mt-1 uppercase tracking-widest">
@@ -82,7 +82,7 @@ export default function AdminLayout({ children }) {
               <select
                 value={activeOrgId}
                 onChange={handleOrgChange}
-                className="w-full bg-gray-700 text-white text-xs rounded border-none focus:ring-1 focus:ring-indigo-500 py-1"
+                className="w-full bg-gray-700 dark:bg-gray-800 text-white text-xs rounded border-none focus:ring-1 focus:ring-indigo-500 py-1"
               >
                 {organizations.map((org) => (
                   <option key={org.id} value={org.id}>
