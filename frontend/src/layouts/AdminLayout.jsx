@@ -41,10 +41,7 @@ export default function AdminLayout({ children }) {
           }
         }
       } catch (err) {
-        console.error("Failed to fetch organizations in AdminLayout:", err);
-        console.error("Error response:", err.response);
-        console.error("Status code:", err.response?.status);
-        console.error("Error data:", err.response?.data);
+
       }
     };
     fetchOrgs();

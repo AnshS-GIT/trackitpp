@@ -23,7 +23,7 @@ export default function ClosedIssues() {
                 setIssues(data);
             } catch (err) {
                 setError("Failed to load closed issues");
-                console.error(err);
+
             } finally {
                 setLoading(false);
             }

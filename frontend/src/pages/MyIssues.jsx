@@ -58,7 +58,7 @@ export default function MyIssues() {
                 }
             } catch (err) {
                 setError("Failed to load your issues");
-                console.error(err);
+
             } finally {
                 setLoading(false);
             }

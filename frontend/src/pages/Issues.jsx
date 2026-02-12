@@ -45,7 +45,7 @@ export default function Issues() {
         const usersData = await fetchUsers();
         setUsers(usersData.filter((u) => u.role === "ENGINEER"));
       } catch (err) {
-        console.error("Failed to load issues:", err);
+
         setError("Failed to load data");
       } finally {
         setLoading(false);

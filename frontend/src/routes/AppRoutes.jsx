@@ -11,6 +11,7 @@ import Profile from "../pages/Profile";
 import AuditLogs from "../pages/AuditLogs";
 import CreateIssue from "../pages/CreateIssue";
 import Organizations from "../pages/Organizations";
+import NotFound from "../pages/NotFound";
 
 const ProtectedRoute = ({ children }) => {
   return isAuthenticated() ? children : <Navigate to="/login" replace />;
@@ -114,7 +115,7 @@ export default function AppRoutes() {
       />
 
       {/* Catch all redirect to home (which then redirects to login if needed) */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
