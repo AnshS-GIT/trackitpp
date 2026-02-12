@@ -29,7 +29,7 @@ export default function Login() {
       const response = await api.post("/users/login", { email, password }, { suppressToast: true });
       localStorage.setItem("token", response.data.data.token);
       toast.success("Welcome back!");
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       if (!err.response) {
         setError("Network error: Server unreachable.");

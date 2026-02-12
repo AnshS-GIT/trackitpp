@@ -95,8 +95,8 @@ export default function AdminLayout({ children }) {
         </div>
         <nav className="mt-6 px-4 space-y-2">
           <Link
-            to="/"
-            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/")}`}
+            to="/dashboard"
+            className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive("/dashboard")}`}
           >
             Dashboard
           </Link>

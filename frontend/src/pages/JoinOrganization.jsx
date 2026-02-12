@@ -21,7 +21,7 @@ export default function JoinOrganization() {
             // If checking active org, we might want to set this as active? 
             // For now, simple redirect.
             localStorage.setItem("activeOrgId", res.data.organization.id);
-            navigate("/");
+            navigate("/dashboard");
             window.location.reload(); // Ensure state refreshes
         } catch (err) {
             // Global error handler handles toast, but we can be specific if needed

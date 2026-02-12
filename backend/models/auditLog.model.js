@@ -10,6 +10,7 @@ const auditLogSchema = new mongoose.Schema(
         "ISSUE_CREATED",
         "ISSUE_STATUS_UPDATED",
         "ISSUE_ASSIGNED",
+        "ISSUE_ASSIGNMENT_REQUESTED",
         "ORGANIZATION_CREATED",
         "ORG_MEMBER_INVITED",
         "ORGANIZATION_INVITE_CODE_GENERATED",

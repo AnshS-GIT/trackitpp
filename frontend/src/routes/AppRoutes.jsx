@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { isAuthenticated } from "../utils/auth";
+import LandingPage from "../pages/LandingPage";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
@@ -19,12 +20,15 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const PublicRoute = ({ children }) => {
-  return isAuthenticated() ? <Navigate to="/" replace /> : children;
+  return isAuthenticated() ? <Navigate to="/dashboard" replace /> : children;
 };
 
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Public: Landing page (redirects to /dashboard if logged in) */}
+      <Route path="/" element={<LandingPage />} />
+
       <Route
         path="/login"
         element={
@@ -42,8 +46,9 @@ export default function AppRoutes() {
         }
       />
 
+      {/* Protected: Dashboard (was "/", now "/dashboard") */}
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <Dashboard />
@@ -123,7 +128,7 @@ export default function AppRoutes() {
         }
       />
 
-      {/* Catch all redirect to home (which then redirects to login if needed) */}
+      {/* Catch all */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
