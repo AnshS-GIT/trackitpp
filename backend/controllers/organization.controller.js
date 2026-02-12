@@ -81,9 +81,25 @@ const generateInviteCode = asyncHandler(async (req, res) => {
   });
 });
 
+const joinOrganization = asyncHandler(async (req, res) => {
+  const { code } = req.body;
+  const userId = req.user.id;
+
+  const result = await organizationService.joinOrganizationByCode({
+    inviteCode: code,
+    userId,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: result,
+  });
+});
+
 module.exports = {
   createOrganization,
   inviteMember,
   getMembers,
   generateInviteCode,
+  joinOrganization,
 };

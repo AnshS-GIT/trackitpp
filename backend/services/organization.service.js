@@ -258,10 +258,76 @@ const generateInviteCode = async ({ orgId, requesterId }) => {
   };
 };
 
+const joinOrganizationByCode = async ({ inviteCode, userId }) => {
+  // Validate input
+  if (!inviteCode) {
+    throw new BadRequestError("Invite code is required");
+  }
+
+  // Find organization by code
+  const organization = await Organization.findOne({ inviteCode });
+  if (!organization) {
+    throw new NotFoundError("Invalid or non-existent invite code");
+  }
+
+  // Check expiry
+  if (
+    organization.inviteCodeExpiresAt &&
+    new Date() > organization.inviteCodeExpiresAt
+  ) {
+    throw new BadRequestError("Invite code has expired");
+  }
+
+  // Check if user is already a member
+  const existingMembership = await OrganizationMember.findOne({
+    user: userId,
+    organization: organization._id,
+  });
+
+  if (existingMembership) {
+    // 409 Conflict typically, ensuring we don't duplicate
+    const error = new Error("You are already a member of this organization");
+    error.statusCode = 409;
+    throw error;
+  }
+
+  // Create membership
+  const membership = await OrganizationMember.create({
+    user: userId,
+    organization: organization._id,
+    role: "MEMBER",
+  });
+
+  // Audit Log
+  try {
+    await auditLogService.logAuditEvent({
+      action: "ORGANIZATION_JOINED_VIA_CODE",
+      entityType: "Organization",
+      entityId: organization._id,
+      performedBy: userId,
+      newValue: {
+        role: "MEMBER",
+        method: "INVITE_CODE",
+      },
+    });
+  } catch (auditError) {
+    console.error("Failed to log audit event:", auditError);
+  }
+
+  return {
+    organization: {
+      id: organization._id,
+      name: organization.name,
+    },
+    role: membership.role,
+  };
+};
+
 module.exports = {
   createOrganization,
   inviteMember,
   getOrganizationMembers,
   canViewMembers,
   generateInviteCode,
+  joinOrganizationByCode,
 };

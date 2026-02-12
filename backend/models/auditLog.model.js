@@ -13,6 +13,7 @@ const auditLogSchema = new mongoose.Schema(
         "ORGANIZATION_CREATED",
         "ORG_MEMBER_INVITED",
         "ORGANIZATION_INVITE_CODE_GENERATED",
+        "ORGANIZATION_JOINED_VIA_CODE",
       ],
     },
 
