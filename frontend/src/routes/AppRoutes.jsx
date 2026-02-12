@@ -11,6 +11,7 @@ import Profile from "../pages/Profile";
 import AuditLogs from "../pages/AuditLogs";
 import CreateIssue from "../pages/CreateIssue";
 import Organizations from "../pages/Organizations";
+import JoinOrganization from "../pages/JoinOrganization";
 import NotFound from "../pages/NotFound";
 
 const ProtectedRoute = ({ children }) => {
@@ -102,6 +103,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Organizations />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/join"
+        element={
+          <ProtectedRoute>
+            <JoinOrganization />
           </ProtectedRoute>
         }
       />

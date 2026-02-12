@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
-import { getMyOrganizations, createOrganization } from "../api/organizations";
+import { getMyOrganizations, createOrganization, generateInviteCode } from "../api/organizations";
 import api from "../api/axios";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Modal from "../components/Modal";
 
 import { useToast } from "../context/ToastContext";
 
@@ -25,9 +26,15 @@ export default function Organizations() {
     const [loadingMembers, setLoadingMembers] = useState(false);
     const [memberAccessDenied, setMemberAccessDenied] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
+
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteRole, setInviteRole] = useState("MEMBER");
     const [inviting, setInviting] = useState(false);
+
+    const [showCodeModal, setShowCodeModal] = useState(false);
+    const [generatedCode, setGeneratedCode] = useState(null);
+    const [codeExpiry, setCodeExpiry] = useState(null);
+    const [generatingCode, setGeneratingCode] = useState(false);
 
     useEffect(() => {
         loadOrganizations();
@@ -117,6 +124,28 @@ export default function Organizations() {
         }
     };
 
+    const handleGenerateInviteCode = async () => {
+        if (!selectedOrg) return;
+        setGeneratingCode(true);
+        try {
+            const res = await generateInviteCode(selectedOrg);
+            setGeneratedCode(res.data.inviteCode);
+            setCodeExpiry(res.data.expiresAt);
+            setShowCodeModal(true);
+        } catch (err) {
+            // Global handled
+        } finally {
+            setGeneratingCode(false);
+        }
+    };
+
+    const copyToClipboard = () => {
+        if (generatedCode) {
+            navigator.clipboard.writeText(generatedCode);
+            toast.success("Invite code copied to clipboard!");
+        }
+    };
+
     return (
         <AdminLayout>
             <div className="space-y-6">
@@ -191,12 +220,30 @@ export default function Organizations() {
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-lg font-semibold text-gray-900">Members</h2>
                                 {selectedOrg && (
-                                    <button
-                                        onClick={() => setShowInviteModal(true)}
-                                        className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
-                                    >
-                                        + Invite
-                                    </button>
+                                    <div className="flex gap-2">
+                                        {/* Check if current user is OWNER or ADMIN for this org */}
+                                        {(() => {
+                                            const org = organizations.find(o => o.id === selectedOrg);
+                                            if (org && ["OWNER", "ADMIN"].includes(org.userRole)) {
+                                                return (
+                                                    <button
+                                                        onClick={handleGenerateInviteCode}
+                                                        disabled={generatingCode}
+                                                        className="px-3 py-1 text-sm text-purple-600 border border-purple-600 rounded hover:bg-purple-50 disabled:opacity-50"
+                                                    >
+                                                        {generatingCode ? "Generating..." : "Generate Code"}
+                                                    </button>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                        <button
+                                            onClick={() => setShowInviteModal(true)}
+                                            className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
+                                        >
+                                            + Invite
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 
@@ -353,7 +400,42 @@ export default function Organizations() {
                         </div>
                     </div>
                 )}
+
+                {/* Invite Code Modal */}
+                <Modal
+                    isOpen={showCodeModal}
+                    onClose={() => setShowCodeModal(false)}
+                    title="Organization Invite Code"
+                >
+                    <div className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                            Share this code with others to let them join this organization as a member.
+                        </p>
+                        <div className="bg-gray-50 p-4 rounded-md border text-center">
+                            <p className="text-2xl font-mono font-bold text-gray-800 tracking-wider">
+                                {generatedCode}
+                            </p>
+                        </div>
+                        <p className="text-xs text-red-500 text-center">
+                            Expires on: {codeExpiry && new Date(codeExpiry).toLocaleDateString()}
+                        </p>
+                        <div className="flex justify-end gap-3 pt-4">
+                            <button
+                                onClick={() => setShowCodeModal(false)}
+                                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={copyToClipboard}
+                                className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                            >
+                                Copy to Clipboard
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
             </div>
-        </AdminLayout>
+        </AdminLayout >
     );
 }
