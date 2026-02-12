@@ -53,7 +53,7 @@ export default function AdminLayout({ children }) {
     const newOrgId = e.target.value;
     localStorage.setItem("activeOrgId", newOrgId);
     setActiveOrgId(newOrgId);
-    window.location.reload(); // Reload to refresh data with new org context
+    window.location.reload();
   };
 
   const isActive = (path) => {
@@ -161,9 +161,12 @@ export default function AdminLayout({ children }) {
           <div className="pt-8 mt-8 border-t border-gray-700">
             <button
               onClick={toggleTheme}
-              className="w-full group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors mb-2"
+              className="w-full group flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors mb-2"
             >
-              {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+              <span>{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
+              <div className={`relative w-10 h-5 rounded-full transition-colors ${theme === "dark" ? "bg-blue-600" : "bg-gray-600"}`}>
+                <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${theme === "dark" ? "translate-x-5" : "translate-x-0"}`} />
+              </div>
             </button>
             <button
               onClick={logout}
@@ -175,7 +178,7 @@ export default function AdminLayout({ children }) {
         </nav>
       </aside>
 
-      {/* Main Content */}
+
       <main className="flex-1 p-8 overflow-auto bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
         {children}
       </main>

@@ -17,8 +17,7 @@ export default function LandingPage() {
             <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16 items-center">
-                        <div className="flex items-center space-x-2">
-                            <span className="text-2xl">🛡️</span>
+                        <div className="flex items-center">
                             <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
                                 TrackIT<span className="text-blue-600">++</span>
                             </h1>
@@ -229,7 +228,6 @@ export default function LandingPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                            <span className="text-2xl shrink-0">🔐</span>
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-white">JWT Authentication</h4>
                                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -239,7 +237,6 @@ export default function LandingPage() {
                         </div>
 
                         <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                            <span className="text-2xl shrink-0">🏢</span>
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-white">Organization-Level Isolation</h4>
                                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -249,7 +246,6 @@ export default function LandingPage() {
                         </div>
 
                         <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                            <span className="text-2xl shrink-0">🛡️</span>
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-white">Role-Based Access Control</h4>
                                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -259,7 +255,6 @@ export default function LandingPage() {
                         </div>
 
                         <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                            <span className="text-2xl shrink-0">📜</span>
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-white">Audit Logging</h4>
                                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -269,7 +264,6 @@ export default function LandingPage() {
                         </div>
 
                         <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                            <span className="text-2xl shrink-0">🚦</span>
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-white">Rate Limiting & Security Middleware</h4>
                                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -279,7 +273,6 @@ export default function LandingPage() {
                         </div>
 
                         <div className="flex gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                            <span className="text-2xl shrink-0">♻️</span>
                             <div>
                                 <h4 className="font-semibold text-gray-900 dark:text-white">Soft Delete & Data Integrity</h4>
                                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">

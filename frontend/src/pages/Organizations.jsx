@@ -251,7 +251,7 @@ export default function Organizations() {
                                 <p className="text-gray-500 text-sm">Select an organization to view members</p>
                             ) : memberAccessDenied ? (
                                 <div className="text-sm text-orange-700 bg-orange-50 p-4 rounded-md">
-                                    🔒 Members are hidden in private organization
+                                    Members are hidden in private organization
                                 </div>
                             ) : loadingMembers ? (
                                 <div className="py-8">
