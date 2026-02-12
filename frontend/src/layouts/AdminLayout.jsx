@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUser, logout } from "../utils/auth";
 import { useEffect, useState } from "react";
 import { getMyOrganizations } from "../api/organizations";
+import { useTheme } from "../context/ThemeContext";
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
@@ -10,6 +11,7 @@ export default function AdminLayout({ children }) {
   const [activeOrgId, setActiveOrgId] = useState(localStorage.getItem("activeOrgId") || "");
   const [activeOrgVisibility, setActiveOrgVisibility] = useState(null);
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const fetchOrgs = async () => {
@@ -158,6 +160,12 @@ export default function AdminLayout({ children }) {
 
           <div className="pt-8 mt-8 border-t border-gray-700">
             <button
+              onClick={toggleTheme}
+              className="w-full group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors mb-2"
+            >
+              {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+            </button>
+            <button
               onClick={logout}
               className="w-full group flex items-center px-2 py-2 text-sm font-medium rounded-md text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors"
             >
@@ -168,7 +176,7 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="flex-1 p-8 overflow-auto bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
         {children}
       </main>
     </div>
