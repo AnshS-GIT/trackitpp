@@ -3,6 +3,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import { fetchIssues } from "../api/issues";
 import { getMyOrganizations } from "../api/organizations";
 import { getUser } from "../utils/auth";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function MyIssues() {
     const [issues, setIssues] = useState([]);
@@ -161,10 +162,6 @@ export default function MyIssues() {
                     </nav>
                 </div>
 
-                import LoadingSpinner from "../components/LoadingSpinner";
-                // ... imports
-
-                // inside component return
                 {loading && <LoadingSpinner message="Loading your issues..." />}
                 {error && <p className="text-red-600 font-medium">{error}</p>}
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import { fetchIssues, updateIssueStatus, assignIssue, requestAssignment, deleteIssue } from "../api/issues";
 import Modal from "../components/Modal";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../context/ToastContext";
 import { fetchUsers } from "../api/users";
 import { getUser } from "../utils/auth";
@@ -165,10 +166,6 @@ export default function Issues() {
           </div>
         </div>
 
-        import LoadingSpinner from "../components/LoadingSpinner";
-        // ... imports
-
-        // inside component return
         {loading && <LoadingSpinner message="Loading issues..." />}
         {error && <p className="text-red-600 font-medium">{error}</p>}
 

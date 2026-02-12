@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import { fetchAuditLogs } from "../api/auditLogs";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function AuditLogs() {
   const [logs, setLogs] = useState([]);
@@ -61,10 +62,6 @@ export default function AuditLogs() {
           </div>
         </div>
 
-        import LoadingSpinner from "../components/LoadingSpinner";
-        //...
-
-        // inside component return
         {loading && <LoadingSpinner message="Loading audit logs..." />}
         {error && <p className="text-red-600 font-medium">{error}</p>}
 
