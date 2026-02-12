@@ -36,3 +36,8 @@ export const createIssue = async (issueData) => {
   });
   return res.data.data;
 };
+
+export const deleteIssue = async (issueId) => {
+  const res = await api.delete(`/issues/${issueId}`);
+  return res.data;
+};

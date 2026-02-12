@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
-import { fetchIssues, updateIssueStatus, assignIssue, requestAssignment } from "../api/issues";
+import { fetchIssues, updateIssueStatus, assignIssue, requestAssignment, deleteIssue } from "../api/issues";
+import Modal from "../components/Modal";
+import { useToast } from "../context/ToastContext";
 import { fetchUsers } from "../api/users";
 import { getUser } from "../utils/auth";
 
@@ -10,6 +12,12 @@ export default function Issues() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const toast = useToast();
+
+  // Delete Modal State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [issueToDelete, setIssueToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Pagination State
   const [page, setPage] = useState(1);
@@ -100,6 +108,27 @@ export default function Issues() {
     );
   };
 
+  const handleDeleteClick = (issue) => {
+    setIssueToDelete(issue);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!issueToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteIssue(issueToDelete._id);
+      toast.success("Issue archived successfully");
+      setIssues((prev) => prev.filter((i) => i._id !== issueToDelete._id));
+      setShowDeleteModal(false);
+      setIssueToDelete(null);
+    } catch (err) {
+      toast.error("Failed to archive issue");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const isManagerOrAdmin = currentUser && ["MANAGER", "ADMIN"].includes(currentUser.role);
   // Engineers can update status but cannot CLOSE
   const canClose = isManagerOrAdmin;
@@ -161,6 +190,9 @@ export default function Issues() {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assign To</th>
+                      {isManagerOrAdmin && (
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -266,6 +298,17 @@ export default function Issues() {
                             </div>
                           )}
                         </td>
+
+                        {isManagerOrAdmin && (
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => handleDeleteClick(issue)}
+                              className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors"
+                            >
+                              Archive
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -339,6 +382,35 @@ export default function Issues() {
           </>
         )}
       </div>
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => !isDeleting && setShowDeleteModal(false)}
+        title="Archive Issue"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            Are you sure you want to archive <strong>{issueToDelete?.title}</strong>?
+            This will hide the issue from the main list. You can restore it later if needed.
+          </p>
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              disabled={isDeleting}
+              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md disabled:opacity-50 flex items-center gap-2"
+            >
+              {isDeleting ? "Archiving..." : "Confirm Archive"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </AdminLayout>
   );
 }
