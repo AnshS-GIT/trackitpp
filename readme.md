@@ -1,273 +1,202 @@
-# TrackIT++ — Multi-Tenant Enterprise Issue & Collaboration Platform
+# TrackIT++
 
-> **A scalable, secure, and compliance-ready issue tracking system designed for enterprise governance, multi-tenancy, and auditable collaboration.**
-
----
-
-## 2. Problem Statement
-Modern enterprises require more than just simple bug tracking. They need a system that ensures **data isolation** across different organizations, enforces **strict role-based access control (RBAC)**, and provides **immutable audit trails** for compliance. Existing solutions often lack the flexibility to handle complex hierarchies or fail to provide transparent "proof of work" mechanisms for external contributors.
-
-## 3. Solution Overview
-**TrackIT++** is a re-architected, enterprise-grade platform that bridges the gap between issue tracking and governance. It introduces a **multi-tenant architecture** where organizations are strictly isolated, ensures every action is **logged for auditing**, and implements a unique **Contribution & Proof** workflow that allows engineers to submit work for manager review before closure.
-
-## 4. Architecture Overview
-
-### Core Patterns
-The backend follows a strict **Controller-Service-Repository** pattern to ensure separation of concerns and maintainability:
-- **Routes**: Define endpoints and apply middleware (Auth, RBAC).
-- **Controllers**: Handle HTTP requests, validation, and response formatting.
-- **Services**: Contain business logic, complex operations, and transaction management.
-- **Models**: Define data schemas and interaction with the database.
-
-### Key Architectural Pillars
-- **Multi-Tenant Isolation**: Data access is scoped strictly to the user's active organization context.
-- **RBAC Enforcement**: Middleware ensures users can only perform actions permitted by their role (Admin, Manager, Engineer, Auditor, Member).
-- **Stateless Authentication**: distinct JWTs for secure, scalable session management.
-
-## 5. Architecture Overview
-
-TrackIT++ follows a modular monolith architecture:
-
-- Frontend (React + Vite) deployed on Vercel
-- Backend API (Node.js + Express) deployed on Render
-- MongoDB Atlas as the primary datastore
-- JWT-based authentication
-- Organization-scoped RBAC enforcement at service layer
-- Centralized audit logging system
-
-All issue and membership queries are strictly scoped by `orgId` to enforce multi-tenant isolation.
-
+Secure multi-tenant issue tracking and collaboration platform with organization-scoped RBAC, audit logging, and invite-based onboarding.
 
 ---
 
-## 6. Tech Stack
+## Problem Statement
 
-### Frontend
-- **Framework**: React 19 (Vite)
-- **Styling**: TailwindCSS 4
-- **State/Routing**: React Router DOM 7
-- **HTTP Client**: Axios (with interceptors)
-- **Utils**: jwt-decode
+Most issue trackers treat access control as an afterthought and lack organization isolation. Teams sharing a platform risk data leaks across tenants, have no granular permission enforcement beyond basic roles, and lack audit trails for compliance. There is no structured workflow for engineers to claim work or submit proof of contribution.
 
-### Backend
-- **Runtime**: Node.js & Express
-- **Database**: MongoDB (Mongoose 9)
-- **Security**: Helmet, CORS, Express Rate Limit, BCrypt, JWT
-- **Logging**: Morgan
+## Solution Overview
 
-### Deployment
-- **Frontend**: Vercel (Static/SPA hosting)
-- **Backend**: Render (Node.js Web Service)
+TrackIT++ is a full-stack issue and governance platform where every operation is scoped to an organization, every action is permission-checked at the service layer, and every mutation is recorded in an immutable audit log. It supports invite-based onboarding, structured contribution workflows, and soft-delete data safety -- all deployed as a production-ready system.
 
 ---
 
-## 7. Features
+## Architecture Overview
 
-- [x] **Multi-Tenancy**: Create and manage multiple organizations with strict data isolation.
-- [x] **Secure Authentication**: JWT-based login/register with password hashing.
-- [x] **Role-Based Access Control**: Granular permissions for Admins, Managers, Engineers, and Auditors.
-- [x] **Issue Lifecycle Management**: comprehensive workflow (Open -> In Progress -> Resolved -> Closed).
-- [x] **Proof of Work System**: Engineers must submit "proofs" (links/files) for contributions.
-- [x] **Manager Reviews**: Contribution requests require manager approval to merge/close.
-- [x] **Audit Logging**: Immutable logs for critical actions (login, issue updates, assignments).
-- [x] **Dashboard Analytics**: High-level view of issue stats and user performance.
-- [x] **Responsive UI**: Modern, clean interface built for productivity.
+```
+Client (React + Tailwind)
+    |
+    v
+Express API (Node.js)
+    |
+    +--> Controllers   (request validation, response shaping)
+    +--> Services      (business logic, RBAC enforcement)
+    +--> Models        (Mongoose schemas, data validation)
+    +--> Middleware     (auth, RBAC, rate limiting, error handling)
+```
 
----
+**Key architectural decisions:**
 
-## 8. Security & RBAC Model
-
-We enforce a **Zero Trust** approach where every request is authenticated and authorized.
-
-| Role | Permissions |
-| :--- | :--- |
-| **Admin** | Full control over organization, users, and audit logs. |
-| **Manager** | Can assign issues, review proofs, and secure issue closure. |
-| **Engineer** | Can view assigned issues, work on them, and submit proofs. |
-| **Auditor** | Read-only access to all data and system audit logs for compliance. |
-| **Member** | Basic read-only access to public organizational data. |
-
-**Security Measures:**
-- **Helmet** for HTTP header security.
-- **Rate Limiting** to prevent brute-force attacks.
-- **Mongo Sanitize** to prevent injection attacks.
-- **CORS** configuration for trusted domains only.
+- **Modular monolith** -- single deployable unit with clear separation of concerns across controllers, services, and models.
+- **Organization-scoped data** -- all queries are filtered by `orgId` to enforce tenant isolation at the data layer.
+- **Service-layer RBAC** -- permissions are enforced in business logic, not just at the route level.
+- **Invite code onboarding** -- organizations generate reusable codes; joins are rate-limited to prevent abuse.
+- **Soft delete** -- issues are marked as deleted rather than permanently removed, preserving audit trail integrity.
+- **Immutable audit logging** -- every significant action (creation, assignment, status change, membership event) is logged with actor, target, and timestamp.
 
 ---
 
-## 9. Contribution & Proof Workflow
+## Tech Stack
 
-1.  **Assignment**: Manager assigns an issue to an Engineer.
-2.  **Work**: Engineer marks issue as *In Progress*.
-3.  **Submission**: Engineer submits a **Contribution Request** with a **Proof** (e.g., PR link, screenshot).
-4.  **Review**: Manager reviews the proof.
-    *   *Approve*: Contribution is verified, issue can be resolved.
-    *   *Reject*: Feedback is provided, issue remains open.
-5.  **Audit**: The entire workflow is logged in the `AuditLog` collection.
-
----
-
-## 10. Audit Logging System
-
-Compliance is a first-class citizen. The `AuditLog` service automatically records:
-- **Who** performed the action (User ID, Role).
-- **What** happened (Action Type: `LOGIN`, `ISSUE_UPDATE`, `ORG_CREATE`, etc.).
-- **Where** it happened (Resource ID, IP Address).
-- **When** it happened (Timestamp).
-
-This data is accessible only to **Admins** and **Auditors** via the `/audit-logs` endpoint.
+| Layer      | Technology                    |
+| ---------- | ----------------------------- |
+| Backend    | Node.js, Express, Mongoose    |
+| Database   | MongoDB Atlas                 |
+| Frontend   | React, Tailwind CSS v4, Vite  |
+| Auth       | JWT (jsonwebtoken, bcrypt)    |
+| Security   | Helmet, CORS, express-rate-limit, express-mongo-sanitize |
+| Deployment | Render (API), Vercel (Client) |
 
 ---
 
-## 11. Non-Functional Requirements
+## Features
 
-- **Security**: All passwords hashed with bcrypt. JWTs expire effectively. API endpoints protected by dual middleware (Auth + Role).
-- **Scalability**: Stateless architecture allows horizontal scaling of backend instances.
-- **Maintainability**: Strict linting (ESLint) and modular directory structure.
-- **Observability**: Centralized error handling and request logging via Morgan.
+- [x] Multi-tenant organizations with full data isolation
+- [x] Role-based access control (Owner, Admin, Manager, Engineer, Auditor)
+- [x] JWT authentication with protected routes
+- [x] Invite code generation and rate-limited join flow
+- [x] Issue lifecycle management (Open, In Progress, Resolved, Closed)
+- [x] Issue assignment and self-assignment request workflow
+- [x] Contribution and proof-of-work submission with review
+- [x] Immutable audit logging for all critical actions
+- [x] Soft delete with data integrity preservation
+- [x] Server-side pagination across issues, members, and audit logs
+- [x] Structured error handling with consistent error codes
+- [x] Dark mode with persistent theme preference
+- [x] Public landing page with auth-aware routing
 
 ---
 
-## 12. Getting Started
+## Security Model
+
+| Layer             | Mechanism                                                |
+| ----------------- | -------------------------------------------------------- |
+| Authentication    | JWT tokens issued on login, verified on every request    |
+| Authorization     | Role-based middleware + service-layer permission checks   |
+| Tenant Isolation  | All queries scoped by `x-organization-id` header         |
+| Input Validation  | Request body validation + MongoDB query sanitization     |
+| Rate Limiting     | Express rate limiter on sensitive endpoints (join, auth)  |
+| Security Headers  | Helmet middleware for HTTP security headers               |
+| Data Safety       | Soft delete prevents accidental permanent data loss       |
+| Audit Trail       | Immutable log entries for every significant mutation      |
+
+---
+
+## API Documentation
+
+Full endpoint documentation with request/response examples is available at [`docs/API.md`](docs/API.md).
+
+---
+
+## Getting Started
 
 ### Prerequisites
-- Node.js v16+
-- MongoDB (Local or Atlas)
-- npm or yarn
 
-### Installation
+- Node.js >= 18
+- MongoDB Atlas cluster (or local MongoDB instance)
+- npm
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/your-org/trackitpp.git
-    cd trackitpp
-    ```
+### Backend Setup
 
-2.  **Install Backend Dependencies**
-    ```bash
-    cd backend
-    npm install
-    ```
-
-3.  **Install Frontend Dependencies**
-    ```bash
-    cd ../frontend
-    npm install
-    ```
-
-### Environment Variables
-Create a `.env` file in the `backend` directory based on `.env.example`:
-```env
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/trackitpp
-JWT_SECRET=your_super_secret_key
-NODE_ENV=development
-```
-
-### Run Scripts
-
-**Backend:**
 ```bash
 cd backend
-npm start        # Production
-npm run dev      # Development (Nodemon)
+cp .env.example .env
+# Edit .env with your MongoDB URI and JWT secret
+npm install
+npm start
 ```
 
-**Frontend:**
+**Environment variables** (see `backend/.env.example`):
+
+```
+PORT=3000
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/trackitpp
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=1d
+NODE_ENV=development
+CLIENT_URL=https://trackitpp.vercel.app
+```
+
+### Frontend Setup
+
 ```bash
 cd frontend
-npm run dev      # Vite Dev Server
-npm run build    # Production Build
+npm install
+npm run dev
+```
+
+The frontend expects the API at the URL configured in `frontend/.env`:
+
+```
+VITE_API_URL=http://localhost:3000/api
 ```
 
 ---
 
-## 13. Deployment
-
-### Frontend (Vercel)
-1.  Connect GitHub repo to Vercel.
-2.  Set Root Directory to `frontend`.
-3.  Set Build Command: `npm run build`.
-4.  Set Output Directory: `dist`.
-5.  Add environment variables (e.g., `VITE_API_BASE_URL`).
+## Deployment
 
 ### Backend (Render)
-1.  Create a Web Service on Render.
-2.  Connect GitHub repo.
-3.  Set Root Directory to `backend`.
-4.  Set Build Command: `npm install`.
-5.  Set Start Command: `node index.js`.
-6.  Add Environment Variables from your `.env` file.
+
+1. Create a new Web Service on Render.
+2. Set root directory to `backend`.
+3. Build command: `npm install`
+4. Start command: `node server.js`
+5. Add environment variables from `.env.example`.
+
+### Frontend (Vercel)
+
+1. Import the repository on Vercel.
+2. Set root directory to `frontend`.
+3. Framework preset: Vite.
+4. Add `VITE_API_URL` environment variable pointing to your Render backend URL.
 
 ---
 
-## 14. Project Structure
+## Project Structure
 
 ```
 trackitpp/
-├── backend/
-│   ├── controllers/      # Request handlers
-│   ├── middleware/       # Auth, RBAC, Error handling
-│   ├── models/           # Mongoose schemas
-│   ├── routes/           # API definitions
-│   ├── services/         # Business logic
-│   └── index.js          # Entry point
-│
-└── frontend/
-    ├── src/
-    │   ├── api/          # Axios setup & endpoints
-    │   ├── components/   # Reusable UI components
-    │   ├── context/      # React Context (Auth, Toast)
-    │   ├── layouts/      # Dashboard/Admin layouts
-    │   ├── pages/        # Route components
-    │   └── utils/        # Helpers (Auth, formatting)
-    └── vite.config.js    # Vite configuration
+  backend/
+    config/          # Database connection
+    controllers/     # Request handling (thin layer)
+    services/        # Business logic and RBAC enforcement
+    models/          # Mongoose schemas
+    middleware/      # Auth, RBAC, rate limiting, error handling
+    routes/          # Express route definitions
+    errors/          # Custom error classes
+    utils/           # JWT, helpers
+    app.js           # Express app configuration
+    server.js        # Entry point
+  frontend/
+    src/
+      api/           # Axios instance and API call functions
+      components/    # Reusable UI components (Modal, Toast)
+      context/       # React context (Theme, Organization)
+      layouts/       # AdminLayout (sidebar, org switcher)
+      pages/         # All page components
+      routes/        # AppRoutes with protected/public routing
+      utils/         # Auth helpers
+  docs/
+    API.md           # Endpoint documentation
 ```
 
 ---
 
-## 15. API Overview
+## Roadmap
 
-| Method | Endpoint | Description | Access |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/login` | Authenticate user | Public |
-| `POST` | `/api/auth/register` | Register new account | Public |
-| `GET` | `/api/issues` | Fetch all issues | Auth |
-| `POST` | `/api/issues` | Create a new issue | Auth |
-| `PATCH` | `/api/issues/:id` | Update status/assign | Manager/Admin |
-| `POST` | `/api/proofs` | Submit work proof | Engineer |
-| `GET` | `/api/files/audit-logs`| View system logs | Admin/Auditor |
-
-> *Full API documentation available in the Postman Collection.*
+- [ ] Email-based invite delivery
+- [ ] Organization settings and member role management UI
+- [ ] Issue comments and activity timeline
+- [ ] Dashboard analytics and charts
+- [ ] File attachments on issues and proofs
+- [ ] Webhook integrations for external notifications
+- [ ] Export audit logs as CSV/PDF
 
 ---
 
-## 16. Screenshots
+## License
 
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+UI)
-![Issue Board](https://via.placeholder.com/800x400?text=Issue+Tracking+Board)
-
----
-
-## 17. Roadmap
-
-- [ ] Email Notifications for assignment/updates.
-- [ ] Slack/Teams Integration webhooks.
-- [ ] Advanced Reporting & CSV Export.
-- [ ] Dark Mode (Native Support).
-
----
-
-## 18. Contribution Guide
-
-1.  Fork the repository.
-2.  Create a feature branch (`git checkout -b feature/amazing-feature`).
-3.  Commit your changes (`git commit -m 'Add some amazing feature'`).
-4.  Push to the branch.
-5.  Open a Pull Request.
-
----
-
-## 19. License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT
