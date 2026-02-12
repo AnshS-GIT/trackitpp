@@ -290,6 +290,35 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Final CTA */}
+            <section className="py-24 bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-800 dark:to-indigo-900 border-t border-blue-500 dark:border-blue-700">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h3 className="text-3xl sm:text-4xl font-bold text-white">
+                        Ready to Organize Your Team Securely?
+                    </h3>
+                    <p className="mt-4 text-lg text-blue-100">
+                        Create your organization, invite your team, and start managing issues in minutes.
+                    </p>
+                    <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                        <Link
+                            to="/register"
+                            className="inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-blue-700 bg-white rounded-lg hover:bg-blue-50 transition-colors shadow-md"
+                        >
+                            Get Started
+                            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </Link>
+                        <Link
+                            to="/login"
+                            className="inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-white border border-white/30 rounded-lg hover:bg-white/10 transition-colors"
+                        >
+                            Login
+                        </Link>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }
