@@ -30,6 +30,12 @@ export default function Dashboard() {
           if (org) setOrgName(org.name);
         }
 
+        if (!activeOrgId) {
+          setStats({ total: 0, open: 0, inProgress: 0, closed: 0 });
+          setLoading(false);
+          return;
+        }
+
         const response = await fetchIssues();
         const issues = response.data || response || [];
 

@@ -1,26 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from "../context/ToastContext";
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const toast = useToast(); // Hook
+  const toast = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const hasShownMessage = useState(false);
+  const hasShownMessage = useRef(false);
 
   useEffect(() => {
-    if (location.state?.message && !hasShownMessage[0]) {
+    if (location.state?.message && !hasShownMessage.current) {
+      hasShownMessage.current = true;
       toast.info(location.state.message);
-      hasShownMessage[1](true);
       window.history.replaceState({}, document.title);
     }
-  }, [location.state?.message]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
