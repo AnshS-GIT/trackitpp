@@ -51,4 +51,15 @@ const issueSchema = new mongoose.Schema(
   baseOptions
 );
 
+// Compound index for performance
+issueSchema.index({ organization: 1, deletedAt: 1 });
+
+// Middleware to filter out deleted issues by default
+issueSchema.pre(/^find|count|findOne/, function (next) {
+  if (this.options.includeDeleted !== true) {
+    this.where({ deletedAt: null });
+  }
+  next();
+});
+
 module.exports = mongoose.model("Issue", issueSchema);

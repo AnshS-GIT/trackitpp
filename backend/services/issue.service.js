@@ -37,7 +37,7 @@ const listIssues = async ({ userId, role, organization, page, limit }) => {
   // Parse and validate pagination params
   const { skip, page: validPage, limit: validLimit } = parsePaginationParams({ page, limit });
 
-  let query = { organization, deletedAt: null };
+  let query = { organization };
 
   if (role === "ENGINEER") {
     query.$or = [{ createdBy: userId }, { assignedTo: userId }];
@@ -88,7 +88,7 @@ const listIssues = async ({ userId, role, organization, page, limit }) => {
 };
 
 const updateIssueStatus = async ({ issueId, newStatus, user }) => {
-  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
+  const issue = await Issue.findById(issueId);
 
   if (!issue) {
     throw new NotFoundError("Issue not found");
@@ -136,7 +136,7 @@ const assignIssue = async ({ issueId, assigneeId, user }) => {
     throw new ForbiddenError("Only managers or admins can assign issues");
   }
 
-  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
+  const issue = await Issue.findById(issueId);
 
   if (!issue) {
     throw new NotFoundError("Issue not found");
@@ -163,7 +163,7 @@ const requestAssignment = async ({ issueId, user }) => {
     throw new ForbiddenError("Only engineers can request assignment");
   }
 
-  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
+  const issue = await Issue.findById(issueId);
 
   if (!issue) {
     throw new NotFoundError("Issue not found");
@@ -192,7 +192,7 @@ const deleteIssue = async ({ issueId, user }) => {
     throw new ForbiddenError("Only managers or admins can delete issues");
   }
 
-  const issue = await Issue.findOne({ _id: issueId, deletedAt: null });
+  const issue = await Issue.findById(issueId);
 
   if (!issue) {
     throw new NotFoundError("Issue not found");
