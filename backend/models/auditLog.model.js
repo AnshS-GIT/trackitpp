@@ -10,13 +10,16 @@ const auditLogSchema = new mongoose.Schema(
         "ISSUE_CREATED",
         "ISSUE_STATUS_UPDATED",
         "ISSUE_ASSIGNED",
+        "ORGANIZATION_CREATED",
+        "ORG_MEMBER_INVITED",
+        "ORGANIZATION_INVITE_CODE_GENERATED",
       ],
     },
 
     entityType: {
       type: String,
       required: true,
-      enum: ["ISSUE"],
+      enum: ["ISSUE", "Organization"],
     },
 
     entityId: {

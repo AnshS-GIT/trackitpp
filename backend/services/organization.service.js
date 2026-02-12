@@ -203,9 +203,65 @@ const canViewMembers = async (orgId, userId) => {
   return false;
 };
 
+const crypto = require("crypto");
+
+const generateInviteCode = async ({ orgId, requesterId }) => {
+  // Validate requester permissions (OWNER/ADMIN)
+  const membership = await OrganizationMember.findOne({
+    user: requesterId,
+    organization: orgId,
+  });
+
+  if (!membership || !["OWNER", "ADMIN"].includes(membership.role)) {
+    throw new ForbiddenError(
+      "Only owners or admins can generate invite codes"
+    );
+  }
+
+  // Generate secure random code
+  const inviteCode = crypto.randomBytes(12).toString("hex").toUpperCase();
+  // Set expiry to 7 days from now
+  const inviteCodeExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  // Update Organization
+  const organization = await Organization.findByIdAndUpdate(
+    orgId,
+    {
+      inviteCode,
+      inviteCodeExpiresAt,
+    },
+    { new: true }
+  );
+
+  if (!organization) {
+    throw new NotFoundError("Organization not found");
+  }
+
+  // Audit Log
+  try {
+    await auditLogService.logAuditEvent({
+      action: "ORGANIZATION_INVITE_CODE_GENERATED",
+      entityType: "Organization",
+      entityId: orgId,
+      performedBy: requesterId,
+      newValue: {
+        expiresAt: inviteCodeExpiresAt,
+      },
+    });
+  } catch (auditError) {
+    console.error("Failed to log audit event:", auditError);
+  }
+
+  return {
+    inviteCode: organization.inviteCode,
+    expiresAt: organization.inviteCodeExpiresAt,
+  };
+};
+
 module.exports = {
   createOrganization,
   inviteMember,
   getOrganizationMembers,
   canViewMembers,
+  generateInviteCode,
 };

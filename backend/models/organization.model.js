@@ -21,6 +21,14 @@ const organizationSchema = new mongoose.Schema(
       enum: ["PUBLIC", "PRIVATE"],
       default: "PUBLIC",
     },
+    inviteCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    inviteCodeExpiresAt: {
+      type: Date,
+    },
   },
   baseOptions
 );
