@@ -165,6 +165,55 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+
+            {/* How It Works */}
+            <section className="py-24 bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                            How TrackIT++ Works
+                        </h3>
+                        <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
+                            Get your team up and running in three simple steps.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+                        {/* Step 1 */}
+                        <div className="text-center">
+                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-lg font-bold mb-4">
+                                1
+                            </div>
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Create Organization</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Set up your workspace with a name and visibility level. Your organization is fully isolated from all others.
+                            </p>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="text-center">
+                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-lg font-bold mb-4">
+                                2
+                            </div>
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Invite Team</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Generate invite codes or send direct invitations. Assign roles to control who can manage, contribute, or audit.
+                            </p>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="text-center">
+                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-lg font-bold mb-4">
+                                3
+                            </div>
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Manage Issues</h4>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Create, assign, and track issues through their lifecycle. Every action is logged for complete transparency.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }
