@@ -29,6 +29,33 @@ function errorHandler(err, req, res, _next) {
     return res.status(err.statusCode).json(response);
   }
 
+  // Handle MongoDB duplicate key error
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue || {})[0] || "field";
+    logger.error("Duplicate key error", err, {
+      requestId,
+      method: req.method,
+      path: req.path,
+    });
+    return res.status(409).json({
+      code: "DUPLICATE_KEY",
+      message: `A record with this ${field} already exists`,
+    });
+  }
+
+  // Handle Mongoose CastError (invalid ObjectId, etc.)
+  if (err.name === "CastError") {
+    logger.error("Cast error", err, {
+      requestId,
+      method: req.method,
+      path: req.path,
+    });
+    return res.status(400).json({
+      code: "INVALID_ID",
+      message: `Invalid ${err.path}: ${err.value}`,
+    });
+  }
+
   // Handle unexpected errors - log but don't expose details
   logger.error("Unexpected error", err, {
     requestId,

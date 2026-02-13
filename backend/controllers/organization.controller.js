@@ -46,8 +46,8 @@ const inviteMember = asyncHandler(async (req, res) => {
   });
 
   res.status(201).json({
-    message: "Member invited successfully",
-    member,
+    message: "Invitation sent successfully",
+    data: member,
   });
 });
 

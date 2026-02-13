@@ -16,6 +16,7 @@ const organizationRoutes = require("./routes/organization.routes");
 const contributionRoutes = require("./routes/contribution.routes");
 const proofRoutes = require("./routes/proof.routes");
 const proofReviewRoutes = require("./routes/proofReview.routes");
+const invitationRoutes = require("./routes/invitation.routes");
 
 const app = express();
 
@@ -63,6 +64,7 @@ app.use("/api", organizationRoutes);
 app.use("/api", contributionRoutes);
 app.use("/api", proofRoutes);
 app.use("/api", proofReviewRoutes);
+app.use("/api", invitationRoutes);
 
 app.use(errorHandler);
 

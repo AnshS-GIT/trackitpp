@@ -115,7 +115,7 @@ export default function Organizations() {
             setInviteEmail("");
             setInviteRole("MEMBER");
             setShowInviteModal(false);
-            toast.success("Member invited successfully");
+            toast.success("Invitation sent successfully");
             await loadMembers(selectedOrg);
         } catch (err) {
             // Global handled

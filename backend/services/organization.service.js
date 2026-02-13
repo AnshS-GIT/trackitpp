@@ -78,55 +78,17 @@ const createOrganization = async ({ name, creatorId, visibility = "PUBLIC" }) =>
 };
 
 const inviteMember = async ({ orgId, email, role, requesterId }) => {
-  // Validate requester has permission (only OWNER/ADMIN can invite)
-  const requesterMembership = await OrganizationMember.findOne({
-    user: requesterId,
-    organization: orgId,
+  // Delegate to invitation service — creates a PENDING invitation
+  // instead of directly adding the user
+  const invitationService = require("./invitation.service");
+  const invitation = await invitationService.createInvitation({
+    orgId,
+    email,
+    role,
+    requesterId,
   });
 
-  if (!requesterMembership) {
-    throw new ForbiddenError("You are not a member of this organization");
-  }
-
-  if (!["OWNER", "ADMIN"].includes(requesterMembership.role)) {
-    throw new ForbiddenError("Only owners or admins can invite members");
-  }
-
-  // Find user to invite
-  const userToInvite = await User.findOne({ email });
-  if (!userToInvite) {
-    throw new NotFoundError("User not found with this email");
-  }
-
-  // Check if already a member
-  const existing = await OrganizationMember.findOne({
-    user: userToInvite._id,
-    organization: orgId,
-  });
-  if (existing) {
-    throw new BadRequestError("User is already a member of this organization");
-  }
-
-  const newMember = await OrganizationMember.create({
-    user: userToInvite._id,
-    organization: orgId,
-    role: role || "MEMBER",
-  });
-
-  // Audit Log
-  try {
-    await auditLogService.logAuditEvent({
-      action: "ORG_MEMBER_INVITED",
-      entityType: "Organization",
-      entityId: orgId,
-      performedBy: requesterId,
-      newValue: { user: userToInvite._id, role: newMember.role },
-    });
-  } catch (auditError) {
-    console.error("Failed to log audit event:", auditError);
-  }
-
-  return newMember;
+  return invitation;
 };
 
 const getOrganizationMembers = async ({ orgId, requesterId, page, limit }) => {
@@ -218,23 +180,44 @@ const generateInviteCode = async ({ orgId, requesterId }) => {
     );
   }
 
-  // Generate secure random code
-  const inviteCode = crypto.randomBytes(12).toString("hex").toUpperCase();
-  // Set expiry to 7 days from now
-  const inviteCodeExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  // Retry up to 3 times in case of duplicate key collision
+  let attempts = 0;
+  const maxAttempts = 3;
+  let organization = null;
 
-  // Update Organization
-  const organization = await Organization.findByIdAndUpdate(
-    orgId,
-    {
-      inviteCode,
-      inviteCodeExpiresAt,
-    },
-    { new: true }
-  );
+  while (attempts < maxAttempts) {
+    try {
+      // Generate secure random code
+      const inviteCode = crypto.randomBytes(12).toString("hex").toUpperCase();
+      // Set expiry to 7 days from now
+      const inviteCodeExpiresAt = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      );
 
-  if (!organization) {
-    throw new NotFoundError("Organization not found");
+      // Update Organization
+      organization = await Organization.findByIdAndUpdate(
+        orgId,
+        {
+          inviteCode,
+          inviteCodeExpiresAt,
+        },
+        { new: true }
+      );
+
+      if (!organization) {
+        throw new NotFoundError("Organization not found");
+      }
+
+      // Success — break out of retry loop
+      break;
+    } catch (err) {
+      attempts++;
+      // If it's a duplicate key error and we have retries left, try again
+      if (err.code === 11000 && attempts < maxAttempts) {
+        continue;
+      }
+      throw err;
+    }
   }
 
   // Audit Log
@@ -245,7 +228,7 @@ const generateInviteCode = async ({ orgId, requesterId }) => {
       entityId: orgId,
       performedBy: requesterId,
       newValue: {
-        expiresAt: inviteCodeExpiresAt,
+        expiresAt: organization.inviteCodeExpiresAt,
       },
     });
   } catch (auditError) {
