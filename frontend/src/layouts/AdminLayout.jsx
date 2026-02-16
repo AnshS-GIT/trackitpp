@@ -46,7 +46,7 @@ export default function AdminLayout({ children }) {
 
           // Fetch invitation count
           try {
-            const invRes = await getMyInvitations();
+            const invRes = await getMyInvitations({ suppressToast: true });
             const invitations = invRes.data || [];
             setInvitationCount(invitations.length);
           } catch (invErr) {

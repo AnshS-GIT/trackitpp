@@ -1,7 +1,7 @@
 import api from "./axios";
 
-export const getMyInvitations = async () => {
-  const res = await api.get("/invitations/me");
+export const getMyInvitations = async (config = {}) => {
+  const res = await api.get("/invitations/me", config);
   return res.data;
 };
 
