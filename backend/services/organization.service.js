@@ -242,6 +242,8 @@ const generateInviteCode = async ({ orgId, requesterId }) => {
 };
 
 const joinOrganizationByCode = async ({ inviteCode, userId }) => {
+  const Invitation = require("../models/invitation.model");
+
   // Validate input
   if (!inviteCode) {
     throw new BadRequestError("Invite code is required");
@@ -268,23 +270,37 @@ const joinOrganizationByCode = async ({ inviteCode, userId }) => {
   });
 
   if (existingMembership) {
-    // 409 Conflict typically, ensuring we don't duplicate
     const error = new Error("You are already a member of this organization");
     error.statusCode = 409;
     throw error;
   }
 
-  // Create membership
-  const membership = await OrganizationMember.create({
-    user: userId,
+  // Check if there's already a pending invitation for this user + org
+  const existingInvite = await Invitation.findOne({
     organization: organization._id,
+    invitedUser: userId,
+    status: "PENDING",
+  });
+
+  if (existingInvite) {
+    throw new BadRequestError(
+      "You already have a pending invitation for this organization. Check your Notifications."
+    );
+  }
+
+  // Create a pending invitation instead of direct membership
+  const invitation = await Invitation.create({
+    organization: organization._id,
+    invitedUser: userId,
+    invitedBy: organization.createdBy, // attribute to org creator
     role: "MEMBER",
+    status: "PENDING",
   });
 
   // Audit Log
   try {
     await auditLogService.logAuditEvent({
-      action: "ORGANIZATION_JOINED_VIA_CODE",
+      action: "ORGANIZATION_INVITE_VIA_CODE",
       entityType: "Organization",
       entityId: organization._id,
       performedBy: userId,
@@ -302,7 +318,8 @@ const joinOrganizationByCode = async ({ inviteCode, userId }) => {
       id: organization._id,
       name: organization.name,
     },
-    role: membership.role,
+    status: "PENDING",
+    message: "Invitation created. Accept it from your Notifications page.",
   };
 };
 

@@ -15,17 +15,11 @@ export default function JoinOrganization() {
         setJoining(true);
 
         try {
-            const res = await joinOrganization(code);
-            toast.success(`Successfully joined ${res.data.organization.name}`);
-            // Refresh active org logic if needed, or just let dashboard handle it
-            // If checking active org, we might want to set this as active? 
-            // For now, simple redirect.
-            localStorage.setItem("activeOrgId", res.data.organization.id);
-            navigate("/dashboard");
-            window.location.reload(); // Ensure state refreshes
+            await joinOrganization(code);
+            toast.success("Invitation request sent! Check your Notifications to accept.");
+            navigate("/notifications");
         } catch (err) {
-            // Global error handler handles toast, but we can be specific if needed
-            // If global handler doesn't pick up specific validation errors well, we rely on it giving a message
+            // Global error handler handles toast
         } finally {
             setJoining(false);
         }

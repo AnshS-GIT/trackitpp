@@ -10,8 +10,16 @@ export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
     const addToast = useCallback((message, type = "info") => {
-        const id = Date.now() + Math.random();
-        setToasts((prev) => [...prev, { id, message, type }]);
+        // Prevent duplicate toasts with same message within 1 second
+        setToasts((prev) => {
+            const isDuplicate = prev.some(
+                (t) => t.message === message && Date.now() - t.timestamp < 1000
+            );
+            if (isDuplicate) return prev;
+
+            const id = Date.now() + Math.random();
+            return [...prev, { id, message, type, timestamp: Date.now() }];
+        });
     }, []);
 
     const removeToast = useCallback((id) => {

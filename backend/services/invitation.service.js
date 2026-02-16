@@ -104,12 +104,12 @@ const getMyInvitations = async (userId) => {
   return invitations.map((inv) => ({
     id: inv._id,
     organization: {
-      id: inv.organization._id,
-      name: inv.organization.name,
+      id: inv.organization?._id,
+      name: inv.organization?.name || "Unknown Organization",
     },
     invitedBy: {
-      name: inv.invitedBy.name,
-      email: inv.invitedBy.email,
+      name: inv.invitedBy?.name || "Unknown",
+      email: inv.invitedBy?.email || "N/A",
     },
     role: inv.role,
     createdAt: inv.createdAt,
