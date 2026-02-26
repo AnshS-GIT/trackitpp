@@ -4,32 +4,20 @@ import { getMyOrganizations, createOrganization, generateInviteCode } from "../a
 import api from "../api/axios";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Modal from "../components/Modal";
-
 import { useToast } from "../context/ToastContext";
 
 export default function Organizations() {
     const toast = useToast();
     const [organizations, setOrganizations] = useState([]);
     const [loading, setLoading] = useState(true);
-    // Removed local error state for page-level errors as we rely on Toasts, 
-    // but for page load failure, a toast might disappear. 
-    // However, requirements say "Replace... with toast". I will use Toast.
 
-    // ... states ...
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newOrgName, setNewOrgName] = useState("");
-    const [newOrgVisibility, setNewOrgVisibility] = useState("PUBLIC");
     const [creating, setCreating] = useState(false);
 
     const [selectedOrg, setSelectedOrg] = useState(null);
     const [members, setMembers] = useState([]);
     const [loadingMembers, setLoadingMembers] = useState(false);
-    const [memberAccessDenied, setMemberAccessDenied] = useState(false);
-    const [showInviteModal, setShowInviteModal] = useState(false);
-
-    const [inviteEmail, setInviteEmail] = useState("");
-    const [inviteRole, setInviteRole] = useState("MEMBER");
-    const [inviting, setInviting] = useState(false);
 
     const [showCodeModal, setShowCodeModal] = useState(false);
     const [generatedCode, setGeneratedCode] = useState(null);
@@ -46,9 +34,6 @@ export default function Organizations() {
             setOrganizations(res.data?.data || res.data || []);
         } catch (err) {
             // Global interceptor handles errors. 
-            // If 404 is not handled globally, we could add it here, 
-            // but for now let's assume global or fallback handles it.
-            // If global doesn't handle 404 (we didn't add it), it emits "Unexpected error" or "message from backend".
         } finally {
             setLoading(false);
         }
@@ -59,11 +44,10 @@ export default function Organizations() {
         setCreating(true);
 
         try {
-            const res = await createOrganization(newOrgName, newOrgVisibility);
+            const res = await createOrganization(newOrgName, "PUBLIC"); // Automatically pass PUBLIC since visibility is removed
             const createdOrg = res.data?.data || res.data;
 
             setNewOrgName("");
-            setNewOrgVisibility("PUBLIC");
             setShowCreateModal(false);
 
             if (createdOrg?.id) {
@@ -87,40 +71,14 @@ export default function Organizations() {
 
     const loadMembers = async (orgId) => {
         setLoadingMembers(true);
-        setMemberAccessDenied(false);
         try {
             const res = await api.get(`/organizations/${orgId}/members`);
             setMembers(res.data || []);
             setSelectedOrg(orgId);
         } catch (err) {
-            if (err.response?.status === 403) {
-                setMemberAccessDenied(true);
-                // 403 global toast will show "Access denied". 
-                // We also want to show the specific UI state for access denied.
-            }
+             // global handles error
         } finally {
             setLoadingMembers(false);
-        }
-    };
-
-    const handleInviteMember = async (e) => {
-        e.preventDefault();
-        setInviting(true);
-
-        try {
-            await api.post(`/organizations/${selectedOrg}/invite`, {
-                email: inviteEmail,
-                role: inviteRole,
-            });
-            setInviteEmail("");
-            setInviteRole("MEMBER");
-            setShowInviteModal(false);
-            toast.success("Invitation sent successfully");
-            await loadMembers(selectedOrg);
-        } catch (err) {
-            // Global handled
-        } finally {
-            setInviting(false);
         }
     };
 
@@ -164,8 +122,6 @@ export default function Organizations() {
                     </button>
                 </div>
 
-
-
                 {loading ? (
                     <LoadingSpinner message="Loading organizations..." />
                 ) : (
@@ -185,12 +141,6 @@ export default function Organizations() {
                                             <div>
                                                 <p className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                                                     {org.name}
-                                                    <span className={`px-2 py-0.5 text-xs rounded ${org.visibility === "PRIVATE"
-                                                        ? "bg-orange-100 text-orange-800"
-                                                        : "bg-green-100 text-green-800"
-                                                        }`}>
-                                                        {org.visibility || "PUBLIC"}
-                                                    </span>
                                                 </p>
                                                 <p className="text-xs text-gray-500">Role: {org.userRole}</p>
                                             </div>
@@ -221,7 +171,6 @@ export default function Organizations() {
                                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Members</h2>
                                 {selectedOrg && (
                                     <div className="flex gap-2">
-                                        {/* Check if current user is OWNER or ADMIN for this org */}
                                         {(() => {
                                             const org = organizations.find(o => o.id === selectedOrg);
                                             if (org && ["OWNER", "ADMIN"].includes(org.userRole)) {
@@ -237,22 +186,12 @@ export default function Organizations() {
                                             }
                                             return null;
                                         })()}
-                                        <button
-                                            onClick={() => setShowInviteModal(true)}
-                                            className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
-                                        >
-                                            + Invite
-                                        </button>
                                     </div>
                                 )}
                             </div>
 
                             {!selectedOrg ? (
                                 <p className="text-gray-500 text-sm">Select an organization to view members</p>
-                            ) : memberAccessDenied ? (
-                                <div className="text-sm text-orange-700 bg-orange-50 p-4 rounded-md">
-                                    Members are hidden in private organization
-                                </div>
                             ) : loadingMembers ? (
                                 <div className="py-8">
                                     <LoadingSpinner message="Loading members..." />
@@ -298,20 +237,6 @@ export default function Organizations() {
                                         placeholder="Enter organization name"
                                     />
                                 </div>
-                                <div className="mb-4">
-                                    <label htmlFor="orgVisibility" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Visibility
-                                    </label>
-                                    <select
-                                        id="orgVisibility"
-                                        value={newOrgVisibility}
-                                        onChange={(e) => setNewOrgVisibility(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        <option value="PUBLIC">Public - Anyone can view members</option>
-                                        <option value="PRIVATE">Private - Only members can view</option>
-                                    </select>
-                                </div>
                                 <div className="flex justify-end gap-3">
                                     <button
                                         type="button"
@@ -332,68 +257,6 @@ export default function Organizations() {
                                             </svg>
                                         )}
                                         {creating ? "Creating..." : "Create"}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-
-                {/* Invite Member Modal */}
-                {showInviteModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Invite Member</h3>
-                            <form onSubmit={handleInviteMember}>
-                                <div className="mb-4">
-                                    <label htmlFor="inviteEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Email Address
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="inviteEmail"
-                                        value={inviteEmail}
-                                        onChange={(e) => setInviteEmail(e.target.value)}
-                                        required
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="user@example.com"
-                                    />
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor="inviteRole" className="block text-sm font-medium text-gray-700 mb-1">
-                                        Role
-                                    </label>
-                                    <select
-                                        id="inviteRole"
-                                        value={inviteRole}
-                                        onChange={(e) => setInviteRole(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        <option value="MEMBER">Member</option>
-                                        <option value="ADMIN">Admin</option>
-                                        <option value="AUDITOR">Auditor</option>
-                                    </select>
-                                </div>
-                                <div className="flex justify-end gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowInviteModal(false)}
-                                        className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={inviting}
-                                        className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
-                                    >
-                                        {inviting && (
-                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        )}
-                                        {inviting ? "Inviting..." : "Send Invite"}
                                     </button>
                                 </div>
                             </form>

@@ -2,7 +2,7 @@ const organizationService = require("../services/organization.service");
 const asyncHandler = require("../middleware/asyncHandler");
 
 const createOrganization = asyncHandler(async (req, res) => {
-  const { name, visibility } = req.body;
+  const { name } = req.body;
   const creatorId = req.user.id;
 
   if (!name) {
@@ -14,7 +14,6 @@ const createOrganization = asyncHandler(async (req, res) => {
   const organization = await organizationService.createOrganization({
     name,
     creatorId,
-    visibility,
   });
 
   res.status(201).json({
@@ -22,32 +21,7 @@ const createOrganization = asyncHandler(async (req, res) => {
     data: {
       id: organization._id,
       name: organization.name,
-      visibility: organization.visibility,
     },
-  });
-});
-
-const inviteMember = asyncHandler(async (req, res) => {
-  const { orgId } = req.params;
-  const { email, role } = req.body;
-  const requesterId = req.user.id;
-
-  if (!email) {
-    const error = new Error("Email is required");
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const member = await organizationService.inviteMember({
-    orgId,
-    email,
-    role,
-    requesterId,
-  });
-
-  res.status(201).json({
-    message: "Invitation sent successfully",
-    data: member,
   });
 });
 
@@ -98,7 +72,6 @@ const joinOrganization = asyncHandler(async (req, res) => {
 
 module.exports = {
   createOrganization,
-  inviteMember,
   getMembers,
   generateInviteCode,
   joinOrganization,

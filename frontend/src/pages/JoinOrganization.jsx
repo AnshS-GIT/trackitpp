@@ -16,8 +16,8 @@ export default function JoinOrganization() {
 
         try {
             await joinOrganization(code);
-            toast.success("Invitation request sent! Check your Notifications to accept.");
-            navigate("/notifications");
+            toast.success("You have joined the organization!");
+            navigate("/organizations");
         } catch (err) {
             // Global error handler handles toast
         } finally {

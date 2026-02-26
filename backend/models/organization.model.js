@@ -16,11 +16,7 @@ const organizationSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    visibility: {
-      type: String,
-      enum: ["PUBLIC", "PRIVATE"],
-      default: "PUBLIC",
-    },
+
     inviteCode: {
       type: String,
       unique: true,
